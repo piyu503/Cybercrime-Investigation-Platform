@@ -33,10 +33,11 @@ export interface TimelineEvent {
 
 export interface Contradiction {
   severity: string;
-  confidence: number;
+  confidence: string;
   reason: string;
   supporting_evidence: string[];
-  affected_entities: string[];
+  related_entities: string[];
+  related_timeline_events: string[];
   suggested_verification: string;
 }
 
@@ -45,8 +46,11 @@ export interface InvestigationGap {
   severity: string;
   priority: string;
   affected_stage: string;
-  confidence: number;
+  confidence: string;
   recommended_evidence: string;
+  supporting_evidence: string[];
+  related_entities: string[];
+  related_timeline_events: string[];
 }
 
 export interface EvidenceValidation {
@@ -61,7 +65,11 @@ export interface IntelligenceRecommendation {
   action: string;
   type: string;
   priority: string;
-  why: string;
+  reason: string;
+  confidence: string;
+  supporting_evidence: string[];
+  related_entities: string[];
+  related_timeline_events: string[];
   expected_outcome: string;
 }
 

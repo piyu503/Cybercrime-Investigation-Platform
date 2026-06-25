@@ -4,6 +4,7 @@ from datetime import datetime
 
 from database.mongodb import get_database
 from models.case import CreateCaseRequest, CreateCaseResponse, CaseOut
+from services.audit.audit_service import log_audit_event
 
 router = APIRouter()
 
@@ -33,8 +34,17 @@ async def create_case(payload: CreateCaseRequest):
     }
 
     result = await db["cases"].insert_one(new_case)
+    case_id = str(result.inserted_id)
+    
+    await log_audit_event(
+        case_id=case_id,
+        action="Case Created",
+        user="System",
+        status="Success",
+        details=f"Case '{payload.case_name}' initialized."
+    )
 
-    return CreateCaseResponse(case_id=str(result.inserted_id))
+    return CreateCaseResponse(case_id=case_id)
 
 
 # ─── GET /cases ───────────────────────────────────────────────────────────────

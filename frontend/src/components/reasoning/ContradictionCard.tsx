@@ -13,7 +13,7 @@ export function ContradictionCard({ contradiction }: { contradiction: Contradict
             {contradiction.severity} Contradiction
           </span>
         </div>
-        <span className="text-[10px] font-mono text-white/50">{contradiction.confidence}% Conf.</span>
+        <span className="text-[10px] font-mono text-white/50">{contradiction.confidence} Conf.</span>
       </div>
       
       <p className="mt-3 text-sm text-slate-200 leading-relaxed">

@@ -40,6 +40,15 @@ async def process_evidence(case_id: str):
     # Run the pipeline
     result = await start_pipeline(case_id)
 
+    from services.audit.audit_service import log_audit_event
+    await log_audit_event(
+        case_id=case_id,
+        action="Evidence Processed",
+        user="System",
+        status="Success",
+        details=f"Processed {result.get('processed_files', 0)} files. Failed {result.get('failed_files', 0)} files."
+    )
+
     return ProcessResponse(
         status=result.get("status", "completed"),
         processed_files=result.get("processed_files", 0),

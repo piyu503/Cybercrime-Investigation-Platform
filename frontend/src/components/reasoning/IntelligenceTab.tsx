@@ -6,6 +6,7 @@ import { ContradictionCard } from "./ContradictionCard";
 import { GapCard } from "./GapCard";
 import { RecommendationCard } from "./RecommendationCard";
 import { InvestigationSummary } from "./InvestigationSummary";
+import { toast } from "sonner";
 
 export function IntelligenceTab({ caseId }: { caseId: string }) {
   const { data: intelligence, isLoading } = useIntelligence(caseId);
@@ -31,7 +32,19 @@ export function IntelligenceTab({ caseId }: { caseId: string }) {
           Run the deterministic reasoning engines to identify gaps, contradictions, and calculate investigation readiness.
         </p>
         <Button 
-          onClick={() => generateIntelligence(caseId)}
+          onClick={() => {
+            toast.loading("Running Intelligence Pipeline...");
+            generateIntelligence(caseId, {
+              onSuccess: () => {
+                toast.dismiss();
+                toast.success("Intelligence Pipeline Complete");
+              },
+              onError: () => {
+                toast.dismiss();
+                toast.error("Pipeline Failed");
+              }
+            });
+          }}
           disabled={isPending}
           className="bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20"
         >

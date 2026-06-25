@@ -34,6 +34,15 @@ async def generate_intelligence_route(case_id: str):
         {"$set": {"intelligence": intelligence}}
     )
 
+    from services.audit.audit_service import log_audit_event
+    await log_audit_event(
+        case_id=case_id,
+        action="Intelligence Generated",
+        user="System",
+        status="Success",
+        details="Generated gaps, contradictions, readiness, and recommendations."
+    )
+
     return {"message": "Intelligence generated successfully", "intelligence": intelligence}
 
 

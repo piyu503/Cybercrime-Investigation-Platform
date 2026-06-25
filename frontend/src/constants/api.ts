@@ -12,6 +12,21 @@ export const API_ENDPOINTS = {
   process: {
     processEvidence: (caseId: string) => `/process/${caseId}`,
   },
+  report: {
+    download: (caseId: string) => `/report/${caseId}`,
+  },
+  audit: {
+    getLogs: (caseId: string) => `/audit/${caseId}`,
+  },
+  search: {
+    globalSearch: (caseId: string, q: string) => `/search/${caseId}?q=${encodeURIComponent(q)}`,
+  },
+  dashboard: {
+    getMetrics: (caseId: string) => `/dashboard/${caseId}`,
+  },
+  demo: {
+    createDemoCase: "/demo/",
+  }
 } as const;
 
 export const QUERY_KEYS = {
@@ -23,6 +38,15 @@ export const QUERY_KEYS = {
   upload: {
     all: ["upload"] as const,
   },
+  audit: {
+    logs: (caseId: string) => ["audit", caseId] as const,
+  },
+  search: {
+    query: (caseId: string, q: string) => ["search", caseId, q] as const,
+  },
+  dashboard: {
+    metrics: (caseId: string) => ["dashboard", caseId] as const,
+  }
 } as const;
 
 export const QUERY_CONFIG = {

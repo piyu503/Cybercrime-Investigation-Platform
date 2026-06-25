@@ -4,14 +4,6 @@ import { useKnowledgeGraphQuery } from "@/hooks/useReasoning";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-interface GraphNode {
-  id: string;
-  label: string;
-  group: string;
-  color?: string;
-  val?: number;
-}
-
 export default function KnowledgeGraphTab({ caseId }: { caseId: string }) {
   const { data: graphData, isLoading, isError } = useKnowledgeGraphQuery(caseId);
   const containerRef = useRef<HTMLDivElement>(null);

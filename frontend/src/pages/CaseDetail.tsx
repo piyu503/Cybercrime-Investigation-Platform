@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight, Folder, RefreshCw, AlertTriangle, FileSearch, GitMerge, Clock, Zap } from "lucide-react";
+import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +14,10 @@ import { useProcessEvidence } from "@/hooks/useProcessEvidence";
 import KnowledgeGraphTab from "@/components/reasoning/KnowledgeGraphTab";
 import TimelineTab from "@/components/reasoning/TimelineTab";
 import { IntelligenceTab } from "@/components/reasoning/IntelligenceTab";
+import CaseDashboard from "@/components/cases/CaseDashboard";
+import GlobalSearch from "@/components/cases/GlobalSearch";
+import AuditTrail from "@/components/cases/AuditTrail";
+import ReportPreview from "@/components/cases/ReportPreview";
 
 // ─── Skeleton ──────────────────────────────────────────────────────────────────
 function DetailSkeleton() {
@@ -99,21 +104,37 @@ export default function CaseDetail() {
       {isError && <ErrorState onRetry={() => refetch()} />}
 
       {caseData && (
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="mb-6 bg-black/40 border border-white/10 h-10 p-1">
-            <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white">
-              <FileSearch className="h-3.5 w-3.5 mr-2" /> Overview
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="mb-6 bg-black/40 border border-white/10 h-auto p-1 flex flex-wrap gap-1 w-full justify-start">
+            <TabsTrigger value="dashboard" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
+              <Zap className="h-3.5 w-3.5 mr-2" /> Dashboard
             </TabsTrigger>
-            <TabsTrigger value="graph" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white">
+            <TabsTrigger value="overview" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
+              <FileSearch className="h-3.5 w-3.5 mr-2" /> Evidence
+            </TabsTrigger>
+            <TabsTrigger value="graph" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
               <GitMerge className="h-3.5 w-3.5 mr-2" /> Knowledge Graph
             </TabsTrigger>
-            <TabsTrigger value="timeline" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white">
+            <TabsTrigger value="timeline" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
               <Clock className="h-3.5 w-3.5 mr-2" /> Timeline
             </TabsTrigger>
-            <TabsTrigger value="intelligence" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white">
-              <Zap className="h-3.5 w-3.5 mr-2" /> Intelligence
+            <TabsTrigger value="intelligence" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
+              <AlertTriangle className="h-3.5 w-3.5 mr-2" /> Analysis
+            </TabsTrigger>
+            <TabsTrigger value="search" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
+              <FileSearch className="h-3.5 w-3.5 mr-2" /> Search
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
+              <Clock className="h-3.5 w-3.5 mr-2" /> Audit Trail
+            </TabsTrigger>
+            <TabsTrigger value="report" className="text-xs data-[state=active]:bg-white/10 data-[state=active]:text-white flex-grow-0">
+              <Folder className="h-3.5 w-3.5 mr-2" /> Court Report
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard" className="mt-0">
+            <CaseDashboard caseId={case_id!} />
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6 mt-0">
             {/* ── Case Overview Card ─────────────────────────────────────────── */}
@@ -141,7 +162,20 @@ export default function CaseDetail() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => processMutation.mutate()}
+                      onClick={() => {
+                        toast.loading("Processing Evidence...");
+                        processMutation.mutate(undefined, {
+                          onSuccess: () => {
+                            toast.dismiss();
+                            toast.success("Evidence processed successfully");
+                            refetch();
+                          },
+                          onError: () => {
+                            toast.dismiss();
+                            toast.error("Failed to process evidence");
+                          }
+                        });
+                      }}
                       disabled={processMutation.isPending}
                       className="border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 text-xs h-8 px-4"
                     >
@@ -175,6 +209,18 @@ export default function CaseDetail() {
 
           <TabsContent value="intelligence" className="mt-0">
              <IntelligenceTab caseId={case_id!} />
+          </TabsContent>
+
+          <TabsContent value="search" className="mt-0">
+            <GlobalSearch caseId={case_id!} />
+          </TabsContent>
+
+          <TabsContent value="audit" className="mt-0">
+            <AuditTrail caseId={case_id!} />
+          </TabsContent>
+
+          <TabsContent value="report" className="mt-0">
+            <ReportPreview caseId={case_id!} />
           </TabsContent>
 
         </Tabs>

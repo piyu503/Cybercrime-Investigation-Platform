@@ -37,9 +37,15 @@ export function RecommendationCard({ rec }: { rec: IntelligenceRecommendation })
         <div className="p-4 pt-0 border-t border-white/5 bg-slate-950/50 text-xs">
           <div className="mt-3 space-y-3">
             <div>
-              <span className="text-[10px] tracking-widest uppercase text-slate-500 block mb-1 font-bold">Investigation Audit Trail (Why?)</span>
+              <span className="text-[10px] tracking-widest uppercase text-slate-500 block mb-1 font-bold">Investigation Audit Trail (Reason)</span>
               <p className="text-slate-300 font-mono text-[11px] leading-relaxed pl-2 border-l-2 border-emerald-500/30">
-                {rec.why}
+                {rec.reason}
+              </p>
+            </div>
+            <div>
+              <span className="text-[10px] tracking-widest uppercase text-slate-500 block mb-1 font-bold">Confidence</span>
+              <p className="text-slate-400">
+                {rec.confidence}
               </p>
             </div>
             <div>

@@ -46,6 +46,15 @@ async def upload_evidence(case_id: str, file: UploadFile = File(...)):
         {"$push": {"files": file_metadata}},
     )
 
+    from services.audit.audit_service import log_audit_event
+    await log_audit_event(
+        case_id=case_id,
+        action="Evidence Uploaded",
+        user="Investigator",
+        status="Success",
+        details=f"File '{file.filename}' uploaded successfully."
+    )
+
     return UploadResponse(
         message="Evidence file uploaded successfully.",
         case_id=case_id,

@@ -24,6 +24,12 @@ export function GapCard({ gap }: { gap: InvestigationGap }) {
         <span className="text-white/40 block mb-1 uppercase tracking-widest text-[9px]">Recommended Evidence</span>
         {gap.recommended_evidence}
       </div>
+      
+      <div className="mt-3 flex gap-2">
+        <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded text-white/50">
+          Confidence: {gap.confidence}
+        </span>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { ChevronRight, FolderPlus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -49,7 +50,15 @@ export default function CreateCase() {
 
         <CardContent className="pt-5">
           <CaseForm
-            onSubmit={(values) => mutation.mutate(values, { onSuccess: (data) => navigate(`/cases/${data.case_id}`) })}
+            onSubmit={(values) => mutation.mutate(values, { 
+              onSuccess: (data) => {
+                toast.success("Case created successfully");
+                navigate(`/cases/${data.case_id}`);
+              },
+              onError: () => {
+                toast.error("Failed to create case");
+              }
+            })}
             isLoading={mutation.isPending}
             error={
               mutation.isError

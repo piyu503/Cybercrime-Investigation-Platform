@@ -15,10 +15,11 @@ def detect_contradictions(graph: Dict[str, Any], timeline: List[Dict[str, Any]])
         if name in seen_names:
             contradictions.append({
                 "severity": "High",
-                "confidence": 98,
+                "confidence": "98%",
                 "reason": f"Duplicate evidence detected: '{name}' appears multiple times.",
                 "supporting_evidence": [seen_names[name], f.get("id")],
-                "affected_entities": [f.get("id")],
+                "related_entities": [f.get("id")],
+                "related_timeline_events": [],
                 "suggested_verification": "Review files to confirm they are exact duplicates. Remove one if confirmed to clean the timeline."
             })
         else:
@@ -45,13 +46,14 @@ def detect_contradictions(graph: Dict[str, Any], timeline: List[Dict[str, Any]])
                         if existing_location != location:
                             contradictions.append({
                                 "severity": "Critical",
-                                "confidence": 85,
+                                "confidence": "85%",
                                 "reason": f"Location mismatch: {person} is reported at '{existing_location}' and '{location}' at the exact same time.",
-                                "supporting_evidence": [
+                                "supporting_evidence": [],
+                                "related_entities": [person, location, existing_location],
+                                "related_timeline_events": [
                                     person_activity[person][timestamp]["event_id"],
                                     event.get("id")
                                 ],
-                                "affected_entities": [person, location, existing_location],
                                 "suggested_verification": "Cross-reference the timestamps of both pieces of evidence. One may have an incorrect timezone or metadata."
                             })
                     else:

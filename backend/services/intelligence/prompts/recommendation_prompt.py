@@ -12,7 +12,11 @@ Schema:
       "action": "Next investigative action",
       "type": "Interview | Evidence Collection | Surveillance | Cyber | Forensics",
       "priority": "High | Medium | Low",
-      "why": "Crucial: Explain exactly why based on the provided evidence. Cite specific entities or timeline events. (This forms the Audit Trail)",
+      "reason": "Crucial: Explain exactly why based on the provided evidence.",
+      "confidence": "95%",
+      "related_timeline_events": ["Timeline Event #7", "Timeline Event #2"],
+      "related_entities": ["John Doe", "9876543210"],
+      "supporting_evidence": ["WhatsApp Chat.pdf", "Witness Statement.docx"],
       "expected_outcome": "What this action will prove or disprove"
     }
   ]

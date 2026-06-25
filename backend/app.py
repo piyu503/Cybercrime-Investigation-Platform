@@ -8,6 +8,11 @@ from routes.upload import router as upload_router
 from routes.process import router as process_router
 from routes.reasoning import router as reasoning_router
 from routes.intelligence import router as intelligence_router
+from routes.report import router as report_router
+from routes.audit import router as audit_router
+from routes.search import router as search_router
+from routes.dashboard import router as dashboard_router
+from routes.demo import router as demo_router
 
 
 @asynccontextmanager
@@ -32,11 +37,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ─── Include Routers ───────────────────────────────────────────────────────────
 app.include_router(cases_router, prefix="/cases", tags=["Cases"])
 app.include_router(upload_router, prefix="/upload", tags=["Upload"])
 app.include_router(process_router, prefix="/process", tags=["Process"])
 app.include_router(reasoning_router, tags=["Reasoning"])
 app.include_router(intelligence_router, tags=["Intelligence"])
+app.include_router(report_router, prefix="/report", tags=["Court Report"])
+app.include_router(audit_router, prefix="/audit", tags=["Audit Trail"])
+app.include_router(search_router, prefix="/search", tags=["Global Search"])
+app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+app.include_router(demo_router, prefix="/demo", tags=["Demo Mode"])
 
 
 @app.get("/", tags=["Health"])

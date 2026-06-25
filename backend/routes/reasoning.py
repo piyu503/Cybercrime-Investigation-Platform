@@ -36,6 +36,16 @@ async def create_timeline(case_id: str):
         {"_id": ObjectId(case_id)},
         {"$set": {"timeline": timeline}}
     )
+    
+    from services.audit.audit_service import log_audit_event
+    await log_audit_event(
+        case_id=case_id,
+        action="Timeline Generated",
+        user="System",
+        status="Success",
+        details=f"Generated timeline with {len(timeline)} events."
+    )
+    
     return {"status": "success", "timeline": timeline}
 
 @router.get("/timeline/{case_id}")
