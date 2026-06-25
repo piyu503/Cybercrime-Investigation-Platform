@@ -1,0 +1,76 @@
+# ===========================
+# Environment Files
+# ===========================
+.env
+.env.*
+!.env.example
+
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# ===========================
+# Backend Uploads
+# ===========================
+backend/uploads/
+uploads/
+
+# OCR Cache
+.easyocr/
+.cache/
+
+# Logs
+*.log
+logs/
+
+# Generated Reports
+reports/
+generated_reports/
+*.pdf
+
+# ===========================
+# Node
+# ===========================
+node_modules/
+
+# Frontend Build
+frontend/dist/
+dist/
+.vite/
+
+# ===========================
+# IDE
+# ===========================
+.vscode/
+.idea/
+
+# ===========================
+# OS
+# ===========================
+.DS_Store
+Thumbs.db
+
+# ===========================
+# Testing
+# ===========================
+coverage/
+.pytest_cache/
+
+# ===========================
+# Secrets
+# ===========================
+credentials.json
+service-account.json
+*.pem
+*.key
+*.crt
