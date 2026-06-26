@@ -45,15 +45,23 @@ export default function EvidenceRow({ file, index }: EvidenceRowProps) {
   return (
     <>
       <tr className={`border-b border-white/5 transition-colors hover:bg-white/[0.05] group cursor-pointer ${index % 2 === 0 ? "bg-white/[0.02]" : "bg-transparent"}`} onClick={() => setIsExpanded(!isExpanded)}>
-        {/* Filename */}
         <td className="px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 rounded-lg bg-white/5 border border-white/10 shadow-sm group-hover:bg-white/10 transition-colors">
-              {getFileIcon(file.filetype)}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-lg bg-white/5 border border-white/10 shadow-sm group-hover:bg-white/10 transition-colors">
+                {getFileIcon(file.filetype)}
+              </div>
+              <span className="text-sm font-medium text-white/90 truncate max-w-[240px] group-hover:text-blue-100 transition-colors" title={file.filename}>
+                {file.filename}
+              </span>
             </div>
-            <span className="text-sm font-medium text-white/90 truncate max-w-[240px] group-hover:text-blue-100 transition-colors">
-              {file.filename}
-            </span>
+            {file.sha256_hash && (
+              <div className="pl-[38px] flex items-center gap-1.5">
+                <span className="text-[9px] font-mono font-medium text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20" title={`SHA-256: ${file.sha256_hash}`}>
+                  SHA-256: {file.sha256_hash.substring(0, 12)}...
+                </span>
+              </div>
+            )}
           </div>
         </td>
 

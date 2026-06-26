@@ -38,6 +38,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_cache_control_header(request, call_next):
+    response = await call_next(request)
+    if request.method == "GET":
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 # ─── Include Routers ───────────────────────────────────────────────────────────
 app.include_router(cases_router, prefix="/cases", tags=["Cases"])
 app.include_router(upload_router, prefix="/upload", tags=["Upload"])

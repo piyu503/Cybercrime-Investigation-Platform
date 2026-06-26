@@ -27,6 +27,10 @@ async def _run_full_pipeline(case_id: str):
         print(f"[pipeline] Phase 1 done: {result.get('processed_files')} processed, {result.get('failed_files')} failed")
     except Exception as e:
         print(f"[pipeline] Phase 1 FAILED: {e}")
+        await db["cases"].update_one(
+            {"_id": ObjectId(case_id)},
+            {"$set": {"processing_status": "failed"}}
+        )
         return
 
     # Phase 2 – rebuild reasoning (graph, timeline, intelligence, summary)
@@ -43,18 +47,24 @@ async def _run_full_pipeline(case_id: str):
 
         from services.reasoning.correlation_engine import correlate_events
         from services.reasoning.timeline_engine import generate_timeline
-        correlated_events = correlate_events(files)
+        import asyncio
+        correlated_events = await asyncio.to_thread(correlate_events, files)
         timeline = generate_timeline(correlated_events)
         print(f"[pipeline] Timeline: {len(timeline)} events")
 
         from services.orchestrator.intelligence_pipeline import run_intelligence_pipeline
-        intelligence = run_intelligence_pipeline(files, timeline, graph)
+        intelligence = await asyncio.to_thread(run_intelligence_pipeline, files, timeline, graph)
+        
+        from services.reasoning.graph_algorithms import calculate_degree_centrality
+        key_entities = calculate_degree_centrality(graph)
+        intelligence["key_entities"] = key_entities
+        
         print(f"[pipeline] Intelligence keys: {list(intelligence.keys())}")
 
         # Generate LLM summary
         from services.intelligence.summary_engine import generate_summary
         try:
-            summary = generate_summary(intelligence)
+            summary = await asyncio.to_thread(generate_summary, intelligence)
             if summary:
                 intelligence["summary"] = summary
                 print(f"[pipeline] Summary generated")

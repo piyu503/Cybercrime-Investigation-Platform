@@ -90,3 +90,32 @@ async def get_case(case_id: str):
         )
 
     return _serialize_case(doc)
+
+
+# ─── GET /cases/{id}/audit ────────────────────────────────────────────────────
+
+@router.get(
+    "/{case_id}/audit",
+    response_model=list[dict],
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve the audit trail for a case",
+)
+async def get_case_audit(case_id: str):
+    db = get_database()
+
+    if not ObjectId.is_valid(case_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"'{case_id}' is not a valid case ID.",
+        )
+
+    # Check if case exists
+    existing_case = await db["cases"].find_one({"_id": ObjectId(case_id)})
+    if not existing_case:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Case with ID '{case_id}' was not found.",
+        )
+
+    from services.audit.audit_service import get_audit_trail
+    return await get_audit_trail(case_id)

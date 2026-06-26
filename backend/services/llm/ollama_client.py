@@ -11,6 +11,9 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 
 def _extract_json(text: str) -> str:
     """Strip markdown code fences and extract the first JSON block from text."""
+    if isinstance(text, bytes):
+        text = text.decode("utf-8")
+        
     text = text.strip()
     match = re.search(r"```(?:json)?\s*([\s\S]+?)```", text)
     if match:

@@ -31,7 +31,7 @@ async def get_dashboard_metrics(case_id: str):
     graph = case.get("knowledge_graph", {})
     total_nodes = len(graph.get("nodes", []))
     total_edges = len(graph.get("edges", []))
-    entities_count = sum(1 for n in graph.get("nodes", []) if n.get("group") == "entity")
+    entities_count = sum(1 for n in graph.get("nodes", []) if n.get("group") != "evidence")
     
     # Intelligence
     intel = case.get("intelligence", {})

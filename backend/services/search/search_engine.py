@@ -5,6 +5,7 @@ def search_case_data(case: Dict[str, Any], query: str) -> Dict[str, List[Dict[st
     Performs a global search across all case collections (files, timeline, graph, intelligence).
     Returns grouped results.
     """
+    original_query = query
     query = query.lower()
     
     results = {
@@ -14,15 +15,45 @@ def search_case_data(case: Dict[str, Any], query: str) -> Dict[str, List[Dict[st
         "intelligence": []
     }
     
+    # Try to generate semantic embedding for query
+    query_embedding = []
+    try:
+        from services.llm.embedding_service import generate_embedding, cosine_similarity
+        query_embedding = generate_embedding(original_query)
+    except Exception as e:
+        print(f"[search] Embedding generation failed: {e}")
+    
     # Search Files
     files = case.get("files", [])
     for f in files:
-        if query in f.get("filename", "").lower() or query in f.get("file_type", "").lower() or query in f.get("metadata", {}).get("text_content", "").lower():
+        filename = f.get("filename", "")
+        file_type = f.get("filetype", f.get("file_type", ""))
+        processed_data = f.get("processed_data", {})
+        extracted_text = processed_data.get("extracted_text", "").lower()
+        
+        is_match = False
+        match_reason = ""
+        
+        # Keyword Match
+        if query in filename.lower() or query in file_type.lower() or query in extracted_text:
+            is_match = True
+            match_reason = "Keyword Match"
+        
+        # Semantic Match
+        if not is_match and query_embedding:
+            file_emb = processed_data.get("embedding", [])
+            if file_emb:
+                similarity = cosine_similarity(query_embedding, file_emb)
+                if similarity > 0.60:
+                    is_match = True
+                    match_reason = f"Semantic Match ({similarity:.2f})"
+                    
+        if is_match:
             results["files"].append({
-                "id": f.get("file_id"),
-                "title": f.get("filename"),
+                "id": f.get("file_id", filename),
+                "title": filename,
                 "type": "File",
-                "preview": f.get("file_type")
+                "preview": match_reason
             })
             
     # Search Knowledge Graph (Entities)

@@ -76,7 +76,7 @@ export default function CaseDetail() {
     refetch,
   } = useCase(case_id || "");
 
-  const { mutate, isPending, startPolling, stopPolling } = useProcessEvidence(case_id || "");
+  const { mutate, isPending, startPolling } = useProcessEvidence(case_id || "");
   const [isPolling, setIsPolling] = useState(false);
 
   if (isLoading) return <div className="h-[calc(100vh-var(--topbar-height))] flex flex-col"><DetailSkeleton /></div>;

@@ -3,6 +3,7 @@ export interface FileMetadata {
   filepath: string;
   filetype: string;
   uploaded_at: string;
+  sha256_hash?: string;
   is_processed?: boolean;
   processed_data?: {
     extracted_text?: string;

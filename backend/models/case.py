@@ -41,9 +41,10 @@ class CaseOut(BaseModel):
     case_name: str
     description: str
     created_at: datetime
+    processing_status: Optional[str] = None
     files: List[FileMetadata] = []
 
-    model_config = {"populate_by_name": True}
+    model_config = {"populate_by_name": True, "extra": "allow"}
 
 
 # ─── Upload Response ───────────────────────────────────────────────────────────

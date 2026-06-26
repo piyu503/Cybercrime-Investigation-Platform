@@ -66,10 +66,15 @@ def _validate_file(file: UploadFile, file_bytes: bytes) -> None:
 def save_file(file: UploadFile, file_bytes: bytes, case_id: str) -> dict:
     """
     Validate, save a file to disk, and return its metadata dict.
+    Calculates SHA-256 for chain of custody.
     """
     _validate_file(file, file_bytes)
 
     case_dir = _ensure_upload_dir(case_id)
+
+    # Calculate SHA-256
+    import hashlib
+    file_hash = hashlib.sha256(file_bytes).hexdigest()
 
     # Build a unique filename to avoid collisions
     timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
@@ -87,4 +92,5 @@ def save_file(file: UploadFile, file_bytes: bytes, case_id: str) -> dict:
         "filepath": file_path,
         "filetype": file.content_type,
         "uploaded_at": datetime.utcnow(),
+        "sha256_hash": file_hash,
     }

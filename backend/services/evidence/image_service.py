@@ -21,39 +21,67 @@ def _run_easyocr_fallback(filepath: str) -> str:
     text_lines = [item[1] for item in result]
     return "\n".join(text_lines).strip()
 
+def extract_exif_data(filepath: str) -> dict:
+    """Extracts EXIF metadata from an image file."""
+    exif_data = {}
+    try:
+        from PIL import Image
+        from PIL.ExifTags import TAGS, GPSTAGS
+        with Image.open(filepath) as img:
+            raw_exif = img._getexif()
+            if raw_exif:
+                for tag_id, value in raw_exif.items():
+                    tag_name = TAGS.get(tag_id, tag_id)
+                    
+                    if isinstance(value, bytes):
+                        try:
+                            value = value.decode('utf-8')
+                        except UnicodeDecodeError:
+                            value = str(value)
+                            
+                    if tag_name == "GPSInfo":
+                        gps_data = {}
+                        for t in value:
+                            gps_tag = GPSTAGS.get(t, t)
+                            gps_data[gps_tag] = str(value[t])
+                        exif_data["GPS"] = gps_data
+                    else:
+                        exif_data[tag_name] = value
+    except Exception as e:
+        print(f"EXIF extraction failed or not present: {e}")
+        
+    forensic_exif = {}
+    if "DateTimeOriginal" in exif_data:
+        forensic_exif["DateTimeOriginal"] = str(exif_data["DateTimeOriginal"])
+    if "Make" in exif_data:
+        forensic_exif["CameraMake"] = str(exif_data["Make"])
+    if "Model" in exif_data:
+        forensic_exif["CameraModel"] = str(exif_data["Model"])
+    if "GPS" in exif_data:
+        forensic_exif["GPSData"] = str(exif_data["GPS"])
+        
+    return forensic_exif
+
 def extract_image(filepath: str) -> dict:
     """
-    Extracts text from an image file using Gemini Vision (Primary) with EasyOCR fallback.
+    Extracts text from an image file using local EasyOCR.
+    Also extracts EXIF metadata.
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"File not found: {filepath}")
 
     full_text = ""
-    error_msg = None
+    
+    exif = extract_exif_data(filepath)
 
-    # Primary: Gemini Vision
     try:
-        if not os.environ.get("GEMINI_API_KEY"):
-            raise ValueError("GEMINI_API_KEY not set")
-            
-        genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
-        # Upload using the File API (best for Gemini 2.5 Flash)
-        import PIL.Image
-        img = PIL.Image.open(filepath)
-        response = model.generate_content([img, "Extract all readable text from this image exactly as written. If there is no text, return empty."])
-        full_text = response.text.strip()
-        
-    except Exception as gemini_err:
-        print(f"Gemini Vision failed: {gemini_err}. Falling back to EasyOCR.")
-        # Fallback: EasyOCR
-        try:
-            full_text = _run_easyocr_fallback(filepath)
-        except Exception as ocr_err:
-            error_msg = f"Both Gemini Vision and EasyOCR failed. OCR Err: {str(ocr_err)}"
-            raise Exception(error_msg)
+        full_text = _run_easyocr_fallback(filepath)
+    except Exception as ocr_err:
+        print(f"EasyOCR failed: {ocr_err}")
 
     return {
-        "text": full_text
+        "text": full_text,
+        "metadata": {
+            "exif": exif
+        }
     }

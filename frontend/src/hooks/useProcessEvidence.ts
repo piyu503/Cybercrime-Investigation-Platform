@@ -30,8 +30,8 @@ export function useProcessEvidence(caseId: string) {
 
     pollingTimer.current = setInterval(async () => {
       try {
-        // Fetch the current case to check processing_status
-        const resp = await axiosInstance.get(`/cases/${caseId}`);
+        // Fetch the current case to check processing_status (with cache busting)
+        const resp = await axiosInstance.get(`/cases/${caseId}?t=${Date.now()}`);
         const status: string = resp.data?.processing_status ?? "";
 
         if (status === "completed") {

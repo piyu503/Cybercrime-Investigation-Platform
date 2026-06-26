@@ -35,14 +35,15 @@ async def start_pipeline(case_id: str) -> dict:
             # 1. Extract unified file metadata
             file_meta = extract_metadata(filepath)
             
+            import asyncio
             # 2. Extract text and type-specific metadata
             extracted_data = {"text": "", "metadata": {}}
             if "pdf" in filetype.lower() or filepath.lower().endswith(".pdf"):
-                extracted_data = extract_pdf(filepath)
+                extracted_data = await asyncio.to_thread(extract_pdf, filepath)
             elif "image" in filetype.lower() or filepath.lower().endswith((".png", ".jpg", ".jpeg")):
-                extracted_data = extract_image(filepath)
+                extracted_data = await asyncio.to_thread(extract_image, filepath)
             elif "text" in filetype.lower() or filepath.lower().endswith(".txt"):
-                extracted_data = extract_text(filepath)
+                extracted_data = await asyncio.to_thread(extract_text, filepath)
             else:
                 failed_count += 1
                 continue
@@ -53,15 +54,23 @@ async def start_pipeline(case_id: str) -> dict:
             combined_metadata = {**file_meta, **extracted_data.get("metadata", {})}
             
             # 3. AI Agents
-            classification_result = classify_evidence(raw_text)
-            entities_result = extract_entities(raw_text)
+            import asyncio
+            classification_task = asyncio.to_thread(classify_evidence, raw_text)
+            entities_task = asyncio.to_thread(extract_entities, raw_text)
+            from services.llm.embedding_service import generate_embedding
+            embedding_task = asyncio.to_thread(generate_embedding, raw_text)
+            
+            classification_result, entities_result, text_embedding = await asyncio.gather(
+                classification_task, entities_task, embedding_task
+            )
                 
             # 4. Save to MongoDB
             processed_data = {
                 "extracted_text": raw_text,
                 "metadata": combined_metadata,
                 "classification": classification_result.get("classification", "Unknown"),
-                "entities": entities_result
+                "entities": entities_result,
+                "embedding": text_embedding
             }
             
             await db["cases"].update_one(
