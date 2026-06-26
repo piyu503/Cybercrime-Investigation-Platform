@@ -1,6 +1,7 @@
 import EvidenceRow from "./EvidenceRow";
 import EmptyEvidenceState from "./EmptyEvidenceState";
 import { FileMetadata } from "@/types/case.types";
+import { motion } from "framer-motion";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 interface EvidenceTableProps {
@@ -15,32 +16,32 @@ export default function EvidenceTable({ files, caseId }: EvidenceTableProps) {
   }
 
   return (
-    <div className="rounded-md border border-white/10 overflow-hidden">
-      <div className="overflow-x-auto">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-white/10 overflow-hidden bg-white/5 shadow-glass backdrop-blur-md">
+      <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/[0.04]">
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 w-[25%]">
+          <thead className="sticky top-0 z-10 bg-black/40 backdrop-blur-md">
+            <tr className="border-b border-white/10">
+              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-white/50 w-[25%]">
                 Filename
               </th>
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 w-[15%]">
+              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-white/50 w-[15%]">
                 File Type
               </th>
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 w-[15%]">
+              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-white/50 w-[15%]">
                 Classification
               </th>
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 w-[15%]">
+              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-white/50 w-[15%]">
                 Status
               </th>
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 w-[15%]">
+              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-white/50 w-[15%]">
                 Upload Date
               </th>
-              <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-white/40">
+              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-white/50">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-white/5">
             {files.map((file, index) => (
               <EvidenceRow key={`${file.filename}-${index}`} file={file} index={index} />
             ))}
@@ -49,11 +50,11 @@ export default function EvidenceTable({ files, caseId }: EvidenceTableProps) {
       </div>
 
       {/* Footer count */}
-      <div className="border-t border-white/8 bg-white/[0.02] px-4 py-2">
-        <p className="text-[11px] text-white/30">
-          {files.length} evidence file{files.length !== 1 ? "s" : ""} attached to this case
-        </p>
+      <div className="border-t border-white/10 bg-white/[0.02] px-4 py-3 flex justify-between items-center">
+        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md border border-white/5">
+          {files.length} ITEMS DETECTED
+        </span>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -1,7 +1,6 @@
-// Quick action buttons that link to existing routes in the app.
-// Navigation targets assume react-router-dom is configured in src/routes/.
-
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Plus, UploadCloud, FolderSearch, Search as SearchIcon, Zap } from "lucide-react";
 
 interface Action {
   id: string;
@@ -15,35 +14,35 @@ interface Action {
 
 function ActionButton({ action }: { action: Action }) {
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       onClick={action.onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm border transition-colors text-left group ${
+      className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group ${
         action.variant === "primary"
-          ? "bg-blue-950/60 border-blue-800/60 hover:bg-blue-900/60 hover:border-blue-700"
-          : "bg-slate-800/40 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600"
+          ? "bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_25px_rgba(59,130,246,0.2)]"
+          : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 shadow-glass"
       }`}
     >
       <div
-        className={`flex-shrink-0 w-8 h-8 rounded flex items-center justify-center ${
-          action.variant === "primary" ? "bg-blue-900/80" : "bg-slate-800"
+        className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+          action.variant === "primary" ? "bg-blue-500/20 text-blue-400 group-hover:bg-blue-500 group-hover:text-white" : "bg-white/10 text-white/50 group-hover:text-white group-hover:bg-white/20"
         }`}
       >
-        <span className={action.variant === "primary" ? "text-blue-400" : "text-slate-400"}>
-          {action.icon}
-        </span>
+        {action.icon}
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className={`text-[13px] font-semibold ${action.variant === "primary" ? "text-blue-100" : "text-slate-200"}`}>
+        <p className={`text-sm font-semibold ${action.variant === "primary" ? "text-blue-100" : "text-white/90 group-hover:text-white transition-colors"}`}>
           {action.label}
         </p>
-        <p className="text-[11px] text-slate-500 truncate">{action.description}</p>
+        <p className="text-xs text-white/40 group-hover:text-white/60 transition-colors truncate">{action.description}</p>
       </div>
 
-      <kbd className="hidden sm:inline-flex flex-shrink-0 items-center px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800 text-[10px] font-mono text-slate-500">
+      <kbd className="hidden sm:inline-flex flex-shrink-0 items-center px-2 py-1 rounded-md border border-white/10 bg-black/20 text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors">
         {action.shortcut}
       </kbd>
-    </button>
+    </motion.button>
   );
 }
 
@@ -53,69 +52,57 @@ export function QuickActions() {
   const actions: Action[] = [
     {
       id: "new-case",
-      label: "Open New Case",
-      description: "Create a case record in the system",
-      shortcut: "N",
+      label: "New Project",
+      description: "Initialize a workspace",
+      shortcut: "⌘N",
       variant: "primary",
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      ),
+      icon: <Plus className="w-5 h-5" />,
       onClick: () => navigate("/cases/new"),
     },
     {
       id: "upload",
       label: "Upload Evidence",
-      description: "Attach files to an existing case",
-      shortcut: "U",
+      description: "Add evidence files",
+      shortcut: "⌘U",
       variant: "secondary",
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-        </svg>
-      ),
+      icon: <UploadCloud className="w-5 h-5" />,
       onClick: () => navigate("/evidence"),
     },
     {
       id: "all-cases",
-      label: "Browse All Cases",
-      description: "Search and filter the case registry",
-      shortcut: "C",
+      label: "Browse Projects",
+      description: "View all records",
+      shortcut: "⌘P",
       variant: "secondary",
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
-        </svg>
-      ),
+      icon: <FolderSearch className="w-5 h-5" />,
       onClick: () => navigate("/cases"),
     },
     {
       id: "search",
-      label: "Search Evidence",
-      description: "Full-text search across all files",
-      shortcut: "/",
+      label: "Global Search",
+      description: "Search all data",
+      shortcut: "⌘K",
       variant: "secondary",
-      icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      ),
+      icon: <SearchIcon className="w-5 h-5" />,
       onClick: () => navigate("/search"),
     },
   ];
 
   return (
-    <div className="bg-slate-900 border border-slate-700/60 rounded-sm">
+    <div className="bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-glass flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-700/60">
-        <span className="w-1.5 h-4 rounded-sm bg-emerald-500 inline-block" />
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-slate-300">
-          Quick Actions
-        </h2>
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5">
+        <div className="p-2 bg-amber-500/20 rounded-lg text-amber-400 ring-1 ring-white/10">
+           <Zap className="w-4 h-4" />
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-white tracking-tight">
+            Quick Actions
+          </h2>
+        </div>
       </div>
 
-      <div className="p-3 flex flex-col gap-2">
+      <div className="p-5 flex flex-col gap-3">
         {actions.map((action) => (
           <ActionButton key={action.id} action={action} />
         ))}

@@ -20,6 +20,12 @@ async def get_case_or_404(case_id: str):
 @router.get("/knowledge-graph/{case_id}")
 async def get_knowledge_graph(case_id: str):
     db, case = await get_case_or_404(case_id)
+    
+    # If case already has a pre-populated/cached knowledge graph with nodes, return it
+    graph = case.get("knowledge_graph")
+    if graph and isinstance(graph, dict) and graph.get("nodes"):
+        return graph
+        
     files = case.get("files", [])
     graph = build_knowledge_graph(files)
     return graph

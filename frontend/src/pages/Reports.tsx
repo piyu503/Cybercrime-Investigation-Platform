@@ -1,16 +1,15 @@
 import { FileText } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PlaceholderPanel } from "@/components/layout/PlaceholderPanel";
+import { CaseSelector } from "@/components/cases/CaseSelector";
 
 export default function Reports() {
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Module 05"
-        title="Reports"
-        description="Generated case summaries, forensic findings, and export-ready documentation."
+    <div className="h-full">
+      <CaseSelector 
+        intent="reports" 
+        title="Generated Reports" 
+        description="Select a project to view case summaries, forensic findings, and export documents." 
+        icon={FileText} 
       />
-      <PlaceholderPanel icon={FileText} module="Reports" />
     </div>
   );
 }

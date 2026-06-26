@@ -1,17 +1,20 @@
 import { useCases } from "../../hooks/useCases";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FolderGit2, ChevronRight, FileImage, LayoutGrid } from "lucide-react";
 
 function StatusBadge({ fileCount }: { fileCount: number }) {
   if (fileCount === 0) {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-semibold tracking-wider uppercase bg-slate-800 text-slate-500 border border-slate-700">
-        <span className="w-1.5 h-1.5 rounded-full bg-slate-600 inline-block" />
-        No Files
+      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-white/5 text-white/50 border border-white/10">
+        <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+        Empty
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[10px] font-semibold tracking-wider uppercase bg-blue-950 text-blue-400 border border-blue-800/60">
-      <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
+    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
       Active
     </span>
   );
@@ -19,10 +22,10 @@ function StatusBadge({ fileCount }: { fileCount: number }) {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString("en-GB", {
-      day: "2-digit",
+    return new Date(iso).toLocaleDateString("en-US", {
       month: "short",
-      year: "numeric",
+      day: "numeric",
+      year: "numeric"
     });
   } catch {
     return "—";
@@ -31,134 +34,105 @@ function formatDate(iso: string): string {
 
 function SkeletonRow() {
   return (
-    <tr className="border-b border-slate-800">
-      {[...Array(5)].map((_, i) => (
-        <td key={i} className="px-4 py-3">
-          <div className="h-3 bg-slate-800 rounded animate-pulse" style={{ width: `${60 + i * 8}%` }} />
-        </td>
-      ))}
-    </tr>
+    <div className="flex items-center gap-4 p-4 border-b border-white/5">
+      <div className="w-10 h-10 rounded-xl bg-white/5 animate-pulse" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 bg-white/10 rounded w-1/3 animate-pulse" />
+        <div className="h-3 bg-white/5 rounded w-1/4 animate-pulse" />
+      </div>
+    </div>
   );
 }
-
-import { useNavigate } from "react-router-dom";
 
 export function RecentCasesTable() {
   const { data: cases, isLoading, isError, error } = useCases();
   const navigate = useNavigate();
 
   return (
-    <div className="bg-slate-900 border border-slate-700/60 rounded-sm">
-      {/* Panel header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700/60">
+    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl shadow-glass flex flex-col h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <span className="w-1.5 h-4 rounded-sm bg-blue-500 inline-block" />
-          <h2 className="text-xs font-semibold tracking-widest uppercase text-slate-300">
-            Case Registry
-          </h2>
-          {cases && (
-            <span className="text-[10px] font-mono text-slate-500 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-sm">
-              {cases.length} records
-            </span>
-          )}
+          <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 ring-1 ring-white/10">
+            <LayoutGrid className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-white tracking-tight">
+              Recent Projects
+            </h2>
+            <p className="text-xs text-white/50">Manage your active investigations</p>
+          </div>
         </div>
-        <span className="text-[10px] tracking-widest uppercase text-slate-600 font-mono">
-          GET /cases
-        </span>
+        {cases && (
+          <span className="text-xs font-medium text-white/60 bg-white/5 border border-white/10 px-2 py-1 rounded-md">
+            {cases.length} total
+          </span>
+        )}
       </div>
 
       {/* Error state */}
       {isError && (
-        <div className="px-5 py-4 text-sm text-red-400 font-mono bg-red-950/20 border-b border-red-900/40">
-          ✗ {(error as { message?: string })?.message || "Failed to fetch cases from backend."}
+        <div className="m-4 p-4 rounded-xl text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-500" />
+          Error loading projects: {(error as { message?: string })?.message || "Connection failed"}
         </div>
       )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-slate-800 bg-slate-800/40">
-              <th className="px-4 py-2.5 text-left text-[10px] font-semibold tracking-widest uppercase text-slate-500 w-32">
-                Case ID
-              </th>
-              <th className="px-4 py-2.5 text-left text-[10px] font-semibold tracking-widest uppercase text-slate-500">
-                Case Name
-              </th>
-              <th className="px-4 py-2.5 text-left text-[10px] font-semibold tracking-widest uppercase text-slate-500 hidden lg:table-cell">
-                Description
-              </th>
-              <th className="px-4 py-2.5 text-left text-[10px] font-semibold tracking-widest uppercase text-slate-500 w-28">
-                Created
-              </th>
-              <th className="px-4 py-2.5 text-center text-[10px] font-semibold tracking-widest uppercase text-slate-500 w-20">
-                Files
-              </th>
-              <th className="px-4 py-2.5 text-center text-[10px] font-semibold tracking-widest uppercase text-slate-500 w-24">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading
-              ? [...Array(5)].map((_, i) => <SkeletonRow key={i} />)
-              : cases && cases.length > 0
-                ? cases.map((c) => (
-                  <tr
-                    key={c._id}
-                    onClick={() => navigate(`/cases/${c._id}`)}
-                    className="border-b border-slate-800/70 hover:bg-slate-800/30 transition-colors cursor-pointer"
-                  >
-                    {/* _id */}
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-[11px] text-slate-500 tracking-tight">
-                        #{String(c._id).slice(-8).toUpperCase()}
-                      </span>
-                    </td>
+      {/* List */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
+        {isLoading ? (
+          <div className="divide-y divide-white/5">
+            {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
+          </div>
+        ) : cases && cases.length > 0 ? (
+          <div className="divide-y divide-white/5">
+            {cases.map((c, index) => (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                key={c._id}
+                onClick={() => navigate(`/cases/${c._id}`)}
+                className="group flex items-center justify-between p-4 hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 group-hover:text-blue-400 group-hover:bg-blue-500/10 group-hover:border-blue-500/20 transition-all">
+                    <FolderGit2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-white/90 group-hover:text-white transition-colors">
+                      {c.case_name || "Untitled Project"}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-white/40">#{String(c._id).slice(-6).toUpperCase()}</span>
+                      <span className="w-1 h-1 rounded-full bg-white/20" />
+                      <span className="text-xs text-white/40">{formatDate(c.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
 
-                    {/* case_name */}
-                    <td className="px-4 py-3">
-                      <span className="text-slate-200 font-medium text-[13px]">
-                        {c.case_name || "—"}
-                      </span>
-                    </td>
-
-                    {/* description */}
-                    <td className="px-4 py-3 hidden lg:table-cell max-w-xs">
-                      <span className="text-slate-500 text-xs truncate block">
-                        {c.description || <span className="italic text-slate-600">No description</span>}
-                      </span>
-                    </td>
-
-                    {/* created_at */}
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-[11px] text-slate-400">
-                        {formatDate(c.created_at)}
-                      </span>
-                    </td>
-
-                    {/* files.length */}
-                    <td className="px-4 py-3 text-center">
-                      <span className="font-mono text-[13px] text-amber-400 font-semibold">
-                        {c.files?.length ?? 0}
-                      </span>
-                    </td>
-
-                    {/* status derived from files.length */}
-                    <td className="px-4 py-3 text-center">
-                      <StatusBadge fileCount={c.files?.length ?? 0} />
-                    </td>
-                  </tr>
-                ))
-                : !isLoading && (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-slate-600 text-sm font-mono">
-                      No cases found. Create a case to begin.
-                    </td>
-                  </tr>
-                )}
-          </tbody>
-        </table>
+                <div className="flex items-center gap-6">
+                  <div className="hidden sm:flex items-center gap-2 text-xs text-white/50">
+                    <FileImage className="w-4 h-4 text-white/30" />
+                    <span>{c.files?.length ?? 0} assets</span>
+                  </div>
+                  <div className="hidden md:block">
+                    <StatusBadge fileCount={c.files?.length ?? 0} />
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/60 group-hover:translate-x-1 transition-all" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : !isLoading && (
+          <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+              <FolderGit2 className="w-8 h-8 text-white/20" />
+            </div>
+            <h3 className="text-sm font-semibold text-white mb-1">No projects found</h3>
+            <p className="text-xs text-white/50 max-w-[200px]">Create your first project to start analyzing evidence.</p>
+          </div>
+        )}
       </div>
     </div>
   );

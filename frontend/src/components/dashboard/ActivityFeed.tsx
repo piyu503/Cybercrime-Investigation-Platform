@@ -1,79 +1,104 @@
-// NOTE: Activity feed uses LOCAL MOCK DATA only.
-// The backend does not currently expose an activity/audit-log endpoint.
-// This component will be wired to a real endpoint when available (Day 5+).
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Activity } from "lucide-react";
+import { useCases } from "../../hooks/useCases";
+import { getAuditLogs, AuditLog } from "../../api/audit.api";
+import { formatDistanceToNow } from "date-fns";
 
-const MOCK_ACTIVITY: {
-  id: string;
-  type: "case_created" | "file_uploaded" | "case_updated" | "system";
-  text: string;
-  actor: string;
-  time: string;
-}[] = [
-  { id: "1", type: "file_uploaded",  text: "3 evidence files uploaded to CASE-0047",   actor: "Det. Ramos",    time: "09:14" },
-  { id: "2", type: "case_created",   text: "New case opened: Harbour St. Incident",     actor: "Sgt. Mitchell", time: "08:52" },
-  { id: "3", type: "case_updated",   text: "Description updated on CASE-0045",          actor: "Det. Ramos",    time: "08:31" },
-  { id: "4", type: "file_uploaded",  text: "CCTV footage attached to CASE-0042",        actor: "Analyst Lee",   time: "07:55" },
-  { id: "5", type: "system",         text: "Nightly index scan completed — 0 anomalies", actor: "SYSTEM",       time: "00:00" },
-  { id: "6", type: "case_created",   text: "New case opened: Warehouse 9 Arson",        actor: "Insp. Okafor",  time: "Yesterday" },
-];
-
-const typeStyles = {
-  case_created:  { dot: "bg-emerald-500", label: "NEW",      labelColor: "text-emerald-400" },
-  file_uploaded: { dot: "bg-amber-400",   label: "UPLOAD",   labelColor: "text-amber-400"   },
-  case_updated:  { dot: "bg-blue-400",    label: "UPDATE",   labelColor: "text-blue-400"    },
-  system:        { dot: "bg-slate-500",   label: "SYSTEM",   labelColor: "text-slate-500"   },
+const typeStyles: Record<string, { dot: string; dotGlow: string; label: string; labelColor: string }> = {
+  "Case Created":  { dot: "bg-emerald-500", dotGlow: "shadow-[0_0_8px_rgba(16,185,129,0.5)]", label: "NEW",      labelColor: "text-emerald-400" },
+  "Evidence Uploaded": { dot: "bg-amber-400",   dotGlow: "shadow-[0_0_8px_rgba(251,191,36,0.5)]", label: "UPLOAD",   labelColor: "text-amber-400"   },
+  "Evidence Processed":  { dot: "bg-blue-400",    dotGlow: "shadow-[0_0_8px_rgba(96,165,250,0.5)]", label: "AI ENGINE",   labelColor: "text-blue-400"    },
+  "Intelligence Generated": { dot: "bg-purple-400", dotGlow: "shadow-[0_0_8px_rgba(168,85,247,0.5)]", label: "INTELL", labelColor: "text-purple-400" },
+  "System":        { dot: "bg-white/50",    dotGlow: "shadow-none", label: "SYSTEM",   labelColor: "text-white/50"   },
 };
 
 export function ActivityFeed() {
+  const { data: cases } = useCases();
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchAllLogs() {
+      if (!cases || cases.length === 0) return;
+      setLoading(true);
+      try {
+        const recentCases = [...cases].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 5);
+        const logsPromises = recentCases.map(c => getAuditLogs(c._id).catch(() => [] as AuditLog[]));
+        const results = await Promise.all(logsPromises);
+        
+        let allLogs = results.flat();
+        allLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setLogs(allLogs.slice(0, 10));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAllLogs();
+  }, [cases]);
+
   return (
-    <div className="bg-slate-900 border border-slate-700/60 rounded-sm flex flex-col h-full">
+    <div className="bg-white/5 border border-white/10 rounded-2xl flex flex-col h-full backdrop-blur-xl shadow-glass overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700/60 flex-shrink-0">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <span className="w-1.5 h-4 rounded-sm bg-amber-500 inline-block" />
-          <h2 className="text-xs font-semibold tracking-widest uppercase text-slate-300">
-            Activity Log
+          <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 ring-1 ring-white/10">
+             <Activity className="w-4 h-4" />
+          </div>
+          <h2 className="text-base font-semibold tracking-tight text-white">
+            Activity Stream
           </h2>
         </div>
-        {/* Clear mock indicator */}
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded-sm bg-amber-950/60 text-amber-500 border border-amber-800/50 tracking-wider">
-          ⚠ MOCK DATA
-        </span>
       </div>
 
       {/* Feed items */}
-      <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60">
-        {MOCK_ACTIVITY.map((item) => {
-          const s = typeStyles[item.type];
-          return (
-            <div key={item.id} className="px-4 py-3 hover:bg-slate-800/20 transition-colors">
-              <div className="flex items-start gap-3">
-                {/* Dot + vertical line */}
-                <div className="flex flex-col items-center pt-1 flex-shrink-0">
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.dot}`} />
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
+        <div className="p-2">
+          {loading ? (
+            <div className="flex justify-center py-8">
+               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+            </div>
+          ) : logs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center px-4 opacity-50">
+               <Activity className="w-6 h-6 mb-2 text-white/30" />
+               <p className="text-xs text-white/40">No recent activity detected.</p>
+            </div>
+          ) : logs.map((item, i) => {
+            const s = typeStyles[item.action] || typeStyles["System"];
+            const timeAgo = formatDistanceToNow(new Date(item.timestamp), { addSuffix: true });
+            
+            return (
+              <motion.div 
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                key={item._id} 
+                className="group flex gap-4 px-4 py-3 hover:bg-white/5 rounded-xl transition-colors cursor-pointer"
+              >
+                {/* Dot */}
+                <div className="flex flex-col items-center pt-1.5 flex-shrink-0">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.dot} ${s.dotGlow} transition-transform group-hover:scale-125`} />
+                  {i !== logs.length - 1 && (
+                    <div className="w-px h-full bg-white/5 my-1" />
+                  )}
                 </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2 mb-0.5">
-                    <span className={`text-[9px] font-bold tracking-widest ${s.labelColor}`}>
+                <div className="flex-1 min-w-0 pb-1">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className={`text-[10px] font-bold tracking-wider uppercase ${s.labelColor}`}>
                       {s.label}
                     </span>
-                    <span className="font-mono text-[10px] text-slate-600">{item.time}</span>
+                    <span className="text-[10px] text-white/30 truncate max-w-[40%] text-right">{timeAgo}</span>
                   </div>
-                  <p className="text-[12px] text-slate-300 leading-snug truncate">{item.text}</p>
-                  <p className="text-[10px] text-slate-600 mt-0.5">{item.actor}</p>
+                  <p className="text-sm text-white/80 leading-snug truncate group-hover:text-white transition-colors" title={item.details}>{item.details || item.action}</p>
+                  <p className="text-[11px] font-medium text-white/40 mt-1">{item.user}</p>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Footer disclaimer */}
-      <div className="px-4 py-2 border-t border-slate-800 bg-slate-800/30 flex-shrink-0">
-        <p className="text-[10px] text-slate-600 font-mono">
-          Backend audit endpoint not yet available — mock data shown
-        </p>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

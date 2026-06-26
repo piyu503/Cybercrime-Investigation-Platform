@@ -1,38 +1,18 @@
-import os
 import json
-import google.generativeai as genai
+from services.llm.ollama_client import generate_content, parse_json_response
 from prompts.evidence_prompt import EVIDENCE_CLASSIFICATION_PROMPT
 
+
 def classify_evidence(text: str) -> dict:
-    """
-    Classifies the extracted text using Gemini 2.5 Flash.
-    """
+    """Classify extracted text using a local LLM via Ollama."""
     if not text or not text.strip():
         return {"classification": "Unknown", "confidence": 0.0, "reasoning": "No text extracted."}
-        
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("Warning: GEMINI_API_KEY not set. Returning dummy classification.")
-        return {"classification": "Pending API Key", "confidence": 0.0, "reasoning": "Missing API Key"}
 
-    genai.configure(api_key=api_key)
-    
-    # We use Flash for speed in classification
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
-    prompt = EVIDENCE_CLASSIFICATION_PROMPT.format(text=text[:10000]) # limit to 10k chars to save tokens if huge
-    
+    prompt = EVIDENCE_CLASSIFICATION_PROMPT.format(text=text[:10000])
     try:
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
-                response_mime_type="application/json",
-                temperature=0.1
-            )
-        )
-        
-        result_json = response.text
-        return json.loads(result_json)
+        response_text = generate_content(prompt, json_mode=True)
+        fallback = {"classification": "Unknown", "confidence": 0.0, "reasoning": "Could not parse LLM response."}
+        return parse_json_response(response_text, fallback)
     except Exception as e:
-        print(f"Failed to classify evidence with Gemini: {e}")
+        print(f"[classification_service] Failed: {e}")
         return {"classification": "Error", "confidence": 0.0, "reasoning": str(e)}

@@ -4,49 +4,43 @@
 
 @layer base {
   :root {
-    /* ---------------------------------------------------------------- */
-    /* Investigation Forensix design tokens                              */
-    /* Every value below is a direct HSL conversion of the brief's exact */
-    /* hex palette — no invented colors, no gradients.                   */
-    /* ---------------------------------------------------------------- */
+    /* Premium Vercel/Linear Dark Theme */
+    --background: 0 0% 4%;           /* Deep black background */
+    --foreground: 0 0% 98%;          /* Crisp white text */
 
-    --background: 210 40% 98%;        /* #F8FAFC */
-    --foreground: 222.2 47.4% 11.2%;  /* #0F172A */
+    --card: 0 0% 6%;                 /* Slightly elevated card */
+    --card-foreground: 0 0% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 0 0% 98%;             /* Primary is white in dark mode */
+    --primary-foreground: 0 0% 9%;
 
-    --primary: 222.2 47.4% 11.2%;     /* #0F172A */
-    --primary-foreground: 210 40% 98%;
+    --secondary: 0 0% 12%;           /* Subtle secondary elements */
+    --secondary-foreground: 0 0% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;   /* #1E293B */
-    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 63%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 220 80% 50%;           /* Vivid Blue Accent */
+    --accent-foreground: 0 0% 98%;
 
-    --accent: 221.2 83.2% 53.3%;      /* #2563EB */
-    --accent-foreground: 210 40% 98%;
+    --success: 142 76% 36%;          /* Emerald */
+    --warning: 38 92% 50%;           /* Amber */
+    --destructive: 0 84% 60%;        /* Coral Red */
+    --destructive-foreground: 0 0% 98%;
 
-    --success: 142.1 76.2% 36.3%;     /* #16A34A */
-    --warning: 37.7 92.1% 50.2%;      /* #F59E0B */
-    --destructive: 0 72.2% 50.6%;     /* #DC2626 */
-    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 15%;              /* Soft borders */
+    --input: 0 0% 15%;
+    --ring: 0 0% 80%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;               /* Generous rounded corners */
 
-    --radius: 0.125rem;
-
-    /* fixed chrome dimensions, used by layout components */
-    --sidebar-width: 17rem;
-    --sidebar-width-collapsed: 4.5rem;
-    --statusbar-height: 1.75rem;
-    --topbar-height: 3.75rem;
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 5rem;
+    --topbar-height: 4rem;
+    --statusbar-height: 0px;
   }
 }
 
@@ -57,23 +51,36 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01";
+    background-image: radial-gradient(circle at 50% -20%, rgba(120, 119, 198, 0.15) 0%, transparent 50%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
 }
 
-/* Thin, utilitarian scrollbars — fits dense data surfaces better than
-   the default chunky OS scrollbar. */
 @layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+  
+  .glass-panel {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/5;
+  }
+  
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--secondary) / 0.4) transparent;
+    scrollbar-color: hsl(var(--border)) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--secondary) / 0.4);
-    border-radius: 3px;
+    background-color: hsl(var(--border));
+    border-radius: 10px;
   }
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;

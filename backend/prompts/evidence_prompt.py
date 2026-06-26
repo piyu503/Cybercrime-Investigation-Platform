@@ -16,11 +16,11 @@ Rules:
 3. Return your response strictly as valid JSON matching the format below. Do not use markdown blocks outside the JSON.
 
 Output format:
-{
+{{
   "classification": "<CATEGORY_NAME>",
   "confidence": <FLOAT_BETWEEN_0_AND_1>,
   "reasoning": "<ONE_SENTENCE_EXPLANATION>"
-}
+}}
 
 Extracted Text:
 \"\"\"

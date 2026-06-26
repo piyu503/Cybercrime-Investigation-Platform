@@ -5,7 +5,6 @@ import {
   Fingerprint,
   History,
   FileText,
-  Settings as SettingsIcon,
   ChevronsLeft,
   ChevronsRight,
   ScanSearch,
@@ -16,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { motion } from "framer-motion";
 
 interface NavItem {
   label: string;
@@ -24,8 +24,8 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", to: "/", icon: LayoutDashboard },
-  { label: "Cases", to: "/cases", icon: Briefcase },
+  { label: "Overview", to: "/", icon: LayoutDashboard },
+  { label: "Projects", to: "/cases", icon: Briefcase },
   { label: "Evidence", to: "/evidence", icon: Fingerprint },
   { label: "Timeline", to: "/timeline", icon: History },
   { label: "Reports", to: "/reports", icon: FileText },
@@ -34,7 +34,6 @@ const NAV_ITEMS: NavItem[] = [
 interface SidebarProps {
   collapsed: boolean;
   onToggleCollapsed: () => void;
-  /** Renders without the fixed positioning so it can sit inside a Sheet on mobile. */
   variant?: "fixed" | "static";
 }
 
@@ -46,37 +45,40 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-secondary bg-primary text-primary-foreground transition-[width] duration-150",
+        "flex h-full flex-col border-r border-white/5 bg-black/40 backdrop-blur-2xl text-foreground transition-[width] duration-300 ease-in-out",
         collapsed ? "w-[var(--sidebar-width-collapsed)]" : "w-[var(--sidebar-width)]",
         variant === "fixed" && "fixed inset-y-0 left-0 z-40 hidden lg:flex"
       )}
       style={{ top: variant === "fixed" ? "var(--statusbar-height)" : undefined }}
     >
-      {/* Agency / system mark */}
-      <div className="flex h-[var(--topbar-height)] items-center gap-2.5 border-b border-secondary px-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-accent">
-          <ScanSearch className="h-4 w-4 text-accent-foreground" />
+      {/* Brand mark */}
+      <div className="flex h-[var(--topbar-height)] items-center gap-3 border-b border-white/5 px-5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-purple-600 shadow-glow">
+          <ScanSearch className="h-5 w-5 text-white" />
         </div>
         {!collapsed && (
-          <div className="min-w-0 leading-tight">
-            <p className="truncate text-sm font-semibold tracking-tight">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+            className="min-w-0 leading-tight"
+          >
+            <p className="truncate text-sm font-bold tracking-tight text-white">
               Forensix
             </p>
-            <p className="truncate font-mono text-2xs text-primary-foreground/50">
-              v1.0 &middot; CMS-OPS
+            <p className="truncate text-[10px] text-white/40 font-medium uppercase tracking-wider">
+              Workspace OS
             </p>
-          </div>
+          </motion.div>
         )}
       </div>
 
       {/* Primary navigation */}
-      <nav className="flex-1 overflow-y-auto scrollbar-thin px-3 py-4">
+      <nav className="flex-1 overflow-y-auto scrollbar-thin px-3 py-6">
         {!collapsed && (
-          <p className="mb-2 px-2 font-mono text-2xs font-semibold uppercase tracking-wider text-primary-foreground/40">
-            Operations
+          <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+            Workspace
           </p>
         )}
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-1.5">
           {NAV_ITEMS.map((item) => (
             <li key={item.to}>
               <SidebarLink item={item} collapsed={collapsed} />
@@ -84,36 +86,21 @@ export function Sidebar({
           ))}
         </ul>
 
-        <div className="my-4 h-px bg-secondary" />
-
-        {!collapsed && (
-          <p className="mb-2 px-2 font-mono text-2xs font-semibold uppercase tracking-wider text-primary-foreground/40">
-            System
-          </p>
-        )}
-        <ul className="flex flex-col gap-1">
-          <li>
-            <SidebarLink
-              item={{ label: "Settings", to: "/settings", icon: SettingsIcon }}
-              collapsed={collapsed}
-            />
-          </li>
-        </ul>
       </nav>
 
       {/* Collapse toggle */}
-      <div className="border-t border-secondary p-3">
+      <div className="p-4 border-t border-white/5">
         <button
           type="button"
           onClick={onToggleCollapsed}
-          className="flex w-full items-center gap-2 rounded-sm px-2 py-2 text-2xs font-medium uppercase tracking-wider text-primary-foreground/60 transition-colors hover:bg-secondary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex w-full items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold text-white/50 transition-all hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 group"
         >
           {collapsed ? (
-            <ChevronsRight className="h-4 w-4 shrink-0" />
+            <ChevronsRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
           ) : (
             <>
-              <ChevronsLeft className="h-4 w-4 shrink-0" />
-              <span>Collapse</span>
+              <ChevronsLeft className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+              <span>Collapse Sidebar</span>
             </>
           )}
         </button>
@@ -137,22 +124,25 @@ function SidebarLink({
       end={item.to === "/"}
       className={({ isActive }) =>
         cn(
-          "group relative flex items-center gap-3 rounded-sm px-2.5 py-2 text-sm font-medium transition-colors",
+          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 overflow-hidden",
           isActive
-            ? "bg-secondary text-primary-foreground"
-            : "text-primary-foreground/60 hover:bg-secondary/60 hover:text-primary-foreground"
+            ? "bg-white/10 text-white shadow-sm border border-white/5"
+            : "text-white/60 hover:bg-white/5 hover:text-white border border-transparent"
         )
       }
     >
       {({ isActive }) => (
         <>
-          <span
-            className={cn(
-              "absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r-sm bg-accent transition-opacity",
-              isActive ? "opacity-100" : "opacity-0"
-            )}
-          />
-          <Icon className="h-4 w-4 shrink-0" />
+          {isActive && (
+            <motion.div
+              layoutId="sidebar-active-indicator"
+              className="absolute left-0 top-1/2 h-1/2 w-1 -translate-y-1/2 rounded-r-full bg-blue-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
+          )}
+          <Icon className={cn("h-5 w-5 shrink-0 transition-colors", isActive ? "text-blue-400" : "text-white/50 group-hover:text-white")} />
           {!collapsed && <span className="truncate">{item.label}</span>}
         </>
       )}
@@ -164,7 +154,9 @@ function SidebarLink({
   return (
     <Tooltip delayDuration={200}>
       <TooltipTrigger asChild>{link}</TooltipTrigger>
-      <TooltipContent side="right">{item.label}</TooltipContent>
+      <TooltipContent side="right" className="bg-[#111] border-white/10 text-white rounded-lg shadow-xl font-medium">
+        {item.label}
+      </TooltipContent>
     </Tooltip>
   );
 }

@@ -53,11 +53,45 @@ async def generate_intelligence_route(case_id: str):
 )
 async def get_intelligence_route(case_id: str):
     db = get_database()
+    if not ObjectId.is_valid(case_id):
+        raise HTTPException(status_code=400, detail="Invalid case ID")
+        
     case = await db["cases"].find_one({"_id": ObjectId(case_id)})
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
         
-    return case.get("intelligence", {})
+    intel = case.get("intelligence", {})
+    if not intel:
+        return {}
+
+    # Auto-generate or convert summary if missing or not structured correctly (e.g. legacy string summary)
+    summary = intel.get("summary")
+    if not summary or not isinstance(summary, dict):
+        try:
+            gen_summary = generate_summary(intel)
+            if gen_summary and isinstance(gen_summary, dict) and gen_summary.get("case_overview"):
+                intel["summary"] = gen_summary
+            else:
+                # Fallback: if there was a string summary, structure it properly so the frontend doesn't render empty cards
+                orig_summary = str(summary) if summary else "No summary available."
+                intel["summary"] = {
+                    "case_overview": orig_summary,
+                    "investigation_status": intel.get("readiness", {}).get("status", "Under Review"),
+                    "critical_findings": [c.get("reason", "") for c in intel.get("contradictions", []) if c.get("reason")][:3],
+                    "major_events": [],
+                    "major_contradictions": [c.get("reason", "") for c in intel.get("contradictions", [])][:3],
+                    "investigation_gaps": [g.get("reason", "") for g in intel.get("gaps", [])][:3],
+                    "overall_assessment": orig_summary
+                }
+            
+            await db["cases"].update_one(
+                {"_id": ObjectId(case_id)},
+                {"$set": {"intelligence": intel}}
+            )
+        except Exception as e:
+            print(f"Failed to auto-generate summary on GET: {e}")
+            
+    return intel
 
 
 @router.get(

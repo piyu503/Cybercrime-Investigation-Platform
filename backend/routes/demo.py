@@ -24,13 +24,26 @@ async def generate_demo_case():
                 "filename": "FIR_091_Cyber_Fraud.pdf",
                 "file_type": "application/pdf",
                 "status": "processed",
-                "metadata": {
-                    "text_content": "FIRST INFORMATION REPORT\nIncident: Wire Fraud\nSuspect: Arthur Vance\nDetails: Subject was seen transferring $10M offshore via shell accounts on 2026-05-12.",
-                    "extracted_entities": [
-                        {"value": "Arthur Vance", "type": "Person"},
-                        {"value": "$10M", "type": "Money"},
-                        {"value": "2026-05-12", "type": "Date"}
-                    ]
+                "is_processed": True,
+                "processed_data": {
+                    "extracted_text": "FIRST INFORMATION REPORT\nIncident: Wire Fraud\nSuspect: Arthur Vance\nDetails: Subject was seen transferring $10M offshore via shell accounts on 2026-05-12.",
+                    "classification": "Incident Report",
+                    "entities": {
+                        "persons": ["Arthur Vance"],
+                        "phones": [],
+                        "vehicles": [],
+                        "locations": [],
+                        "dates": ["2026-05-12"],
+                        "times": [],
+                        "organizations": [],
+                        "emails": [],
+                        "money": ["$10M"],
+                        "evidence_ids": [],
+                        "confidence": {"Arthur Vance": 0.95, "2026-05-12": 0.9}
+                    },
+                    "metadata": {
+                        "text_content": "FIRST INFORMATION REPORT\nIncident: Wire Fraud\nSuspect: Arthur Vance\nDetails: Subject was seen transferring $10M offshore via shell accounts on 2026-05-12."
+                    }
                 }
             },
             {
@@ -38,13 +51,26 @@ async def generate_demo_case():
                 "filename": "WhatsApp_Export_Vance.txt",
                 "file_type": "text/plain",
                 "status": "processed",
-                "metadata": {
-                    "text_content": "[2026-05-13 14:00] Vance: Did the transfer go through to the Cayman account?\n[2026-05-13 14:02] Unknown: Yes, funds cleared. Wash complete.",
-                    "extracted_entities": [
-                        {"value": "Vance", "type": "Person"},
-                        {"value": "Cayman account", "type": "Location"},
-                        {"value": "2026-05-13 14:00", "type": "Date"}
-                    ]
+                "is_processed": True,
+                "processed_data": {
+                    "extracted_text": "[2026-05-13 14:00] Vance: Did the transfer go through to the Cayman account?\n[2026-05-13 14:02] Unknown: Yes, funds cleared. Wash complete.",
+                    "classification": "Communications Export",
+                    "entities": {
+                        "persons": ["Arthur Vance"],
+                        "phones": [],
+                        "vehicles": [],
+                        "locations": ["Cayman account"],
+                        "dates": ["2026-05-13"],
+                        "times": ["14:00"],
+                        "organizations": [],
+                        "emails": [],
+                        "money": [],
+                        "evidence_ids": [],
+                        "confidence": {"Arthur Vance": 0.95, "Cayman account": 0.9}
+                    },
+                    "metadata": {
+                        "text_content": "[2026-05-13 14:00] Vance: Did the transfer go through to the Cayman account?\n[2026-05-13 14:02] Unknown: Yes, funds cleared. Wash complete."
+                    }
                 }
             },
             {
@@ -52,14 +78,26 @@ async def generate_demo_case():
                 "filename": "Witness_Statement_01.pdf",
                 "file_type": "application/pdf",
                 "status": "processed",
-                "metadata": {
-                    "text_content": "WITNESS STATEMENT\nName: Sarah Jenkins\nStatement: I saw Arthur Vance in Geneva on 2026-05-12, nowhere near the transaction desk. He was attending a conference.",
-                    "extracted_entities": [
-                        {"value": "Sarah Jenkins", "type": "Person"},
-                        {"value": "Arthur Vance", "type": "Person"},
-                        {"value": "Geneva", "type": "Location"},
-                        {"value": "2026-05-12", "type": "Date"}
-                    ]
+                "is_processed": True,
+                "processed_data": {
+                    "extracted_text": "WITNESS STATEMENT\nName: Sarah Jenkins\nStatement: I saw Arthur Vance in Geneva on 2026-05-12, nowhere near the transaction desk. He was attending a conference.",
+                    "classification": "Witness Statement",
+                    "entities": {
+                        "persons": ["Sarah Jenkins", "Arthur Vance"],
+                        "phones": [],
+                        "vehicles": [],
+                        "locations": ["Geneva"],
+                        "dates": ["2026-05-12"],
+                        "times": [],
+                        "organizations": [],
+                        "emails": [],
+                        "money": [],
+                        "evidence_ids": [],
+                        "confidence": {"Sarah Jenkins": 0.95, "Arthur Vance": 0.95, "Geneva": 0.9}
+                    },
+                    "metadata": {
+                        "text_content": "WITNESS STATEMENT\nName: Sarah Jenkins\nStatement: I saw Arthur Vance in Geneva on 2026-05-12, nowhere near the transaction desk. He was attending a conference."
+                    }
                 }
             }
         ],
@@ -113,7 +151,28 @@ async def generate_demo_case():
             ]
         },
         "intelligence": {
-            "summary": "Op Phantom investigates a sophisticated $10M offshore wire fraud allegedly orchestrated by Arthur Vance. Evidence includes the FIR and encrypted WhatsApp logs. However, a sworn witness statement places Vance in Geneva on the day of the transfer, raising significant alibi considerations.",
+            "summary": {
+                "case_overview": "Op Phantom investigates a sophisticated $10M offshore wire fraud allegedly orchestrated by Arthur Vance. Evidence includes the FIR and encrypted WhatsApp logs.",
+                "investigation_status": "Active / Verification Required",
+                "critical_findings": [
+                    "Arthur Vance is suspected of transferring $10M offshore via shell accounts on 2026-05-12.",
+                    "Witness Sarah Jenkins provides a sworn statement placing Vance in Geneva at the time of the transfer.",
+                    "Encrypted WhatsApp chats verify the Cayman island wire transfer went through."
+                ],
+                "major_events": [
+                    "FIR report Arthur Vance transferred $10M offshore on 2026-05-12.",
+                    "Witness Sarah Jenkins claims Arthur Vance was in Geneva on 2026-05-12.",
+                    "WhatsApp chat confirms funds cleared to Cayman account on 2026-05-13."
+                ],
+                "major_contradictions": [
+                    "Vance is implicated in a transaction while a witness statement places him in Geneva."
+                ],
+                "investigation_gaps": [
+                    "Official bank statements proving the transfer are missing.",
+                    "Call Detail Records (CDRs) for Arthur Vance's phone are missing."
+                ],
+                "overall_assessment": "Op Phantom investigates a sophisticated $10M offshore wire fraud allegedly orchestrated by Arthur Vance. Evidence includes the FIR and encrypted WhatsApp logs. However, a sworn witness statement places Vance in Geneva on the day of the transfer, raising significant alibi considerations."
+            },
             "readiness": {
                 "overall_score": 65,
                 "status": "Needs Verification",

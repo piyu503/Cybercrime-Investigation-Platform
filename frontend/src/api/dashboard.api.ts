@@ -13,6 +13,8 @@ export interface DashboardMetrics {
   contradictions_count: number;
   gaps_count: number;
   readiness_score: number;
+  investigation_status: string;
+  processing_time_seconds: number;
   recent_activity: AuditLog[];
 }
 

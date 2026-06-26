@@ -100,6 +100,32 @@ def build_knowledge_graph(files: List[Dict[str, Any]]) -> Dict[str, List[Dict[st
                     "evidence_file": filename
                 })
 
+        # 4. Generic co-occurrence edges for all entities in the same file
+        # Limit to 20 edges per file to avoid combinatorial explosion
+        max_generic_edges = 20
+        edge_counter = 0
+        for i in range(len(file_entities)):
+            if edge_counter >= max_generic_edges:
+                break
+            for j in range(i + 1, len(file_entities)):
+                if edge_counter >= max_generic_edges:
+                    break
+                src = file_entities[i]
+                tgt = file_entities[j]
+                
+                # Skip if edge already exists between these two nodes in any direction
+                if any((e["source"] == src and e["target"] == tgt) or (e["source"] == tgt and e["target"] == src) for e in edges):
+                    continue
+                    
+                edges.append({
+                    "source": src,
+                    "target": tgt,
+                    "label": "co_occurs",
+                    "confidence": min(nodes[src]["confidence"], nodes[tgt]["confidence"]),
+                    "evidence_file": filename
+                })
+                edge_counter += 1
+
     return {
         "nodes": list(nodes.values()),
         "edges": edges

@@ -37,7 +37,7 @@ def extract_image(filepath: str) -> dict:
             raise ValueError("GEMINI_API_KEY not set")
             
         genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Upload using the File API (best for Gemini 2.5 Flash)
         import PIL.Image

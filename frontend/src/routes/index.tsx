@@ -8,7 +8,6 @@ import EvidenceUpload from "@/pages/EvidenceUpload";
 import Evidence from "@/pages/Evidence";
 import Timeline from "@/pages/Timeline";
 import Reports from "@/pages/Reports";
-import Settings from "@/pages/Settings";
 import Search from "@/pages/Search";
 
 export const router = createBrowserRouter([
@@ -24,7 +23,6 @@ export const router = createBrowserRouter([
       { path: "evidence", element: <Evidence /> },
       { path: "timeline", element: <Timeline /> },
       { path: "reports", element: <Reports /> },
-      { path: "settings", element: <Settings /> },
       { path: "search", element: <Search /> },
     ],
   },

@@ -1,16 +1,15 @@
 import { Search as SearchIcon } from "lucide-react";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { PlaceholderPanel } from "@/components/layout/PlaceholderPanel";
+import { CaseSelector } from "@/components/cases/CaseSelector";
 
 export default function Search() {
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow="Global"
-        title="Search Records"
-        description="Search across all cases, evidence, and investigation timelines."
+    <div className="h-full">
+      <CaseSelector 
+        intent="search" 
+        title="Global Search" 
+        description="Select a project to search across evidence, timelines, and extracted entities." 
+        icon={SearchIcon} 
       />
-      <PlaceholderPanel icon={SearchIcon} module="Search" />
     </div>
   );
 }

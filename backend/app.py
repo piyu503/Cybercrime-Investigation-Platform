@@ -13,6 +13,7 @@ from routes.audit import router as audit_router
 from routes.search import router as search_router
 from routes.dashboard import router as dashboard_router
 from routes.demo import router as demo_router
+from routes.copilot import router as copilot_router
 
 
 @asynccontextmanager
@@ -48,6 +49,7 @@ app.include_router(audit_router, prefix="/audit", tags=["Audit Trail"])
 app.include_router(search_router, prefix="/search", tags=["Global Search"])
 app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
 app.include_router(demo_router, prefix="/demo", tags=["Demo Mode"])
+app.include_router(copilot_router, prefix="/copilot", tags=["Copilot"])
 
 
 @app.get("/", tags=["Health"])

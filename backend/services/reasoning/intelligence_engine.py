@@ -1,54 +1,48 @@
-import os
 import json
-import google.generativeai as genai
 from typing import Dict, Any
+from services.llm.ollama_client import generate_content, parse_json_response
+
+
+INTELLIGENCE_FALLBACK = {
+    "contradictions": [],
+    "investigation_gaps": ["Intelligence generation failed — check Ollama server."],
+    "recommended_actions": [],
+    "reasoning": "LLM not available."
+}
+
 
 def generate_intelligence(graph: dict, timeline: list, case_context: dict) -> Dict[str, Any]:
-    """
-    Passes structured investigation data to Gemini to extract intelligence.
-    """
-    if not os.environ.get("GEMINI_API_KEY"):
-        raise ValueError("GEMINI_API_KEY not set")
-        
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
+    """Generate investigation intelligence from graph, timeline, and case context using a local LLM."""
+
     prompt = f"""
-    You are a Principal Investigation Analyst.
-    Analyze the following structured evidence from an active case.
-    
-    Case Context: {json.dumps(case_context, default=str)[:1000]}
-    Timeline Events: {json.dumps(timeline, default=str)[:3000]}
-    Knowledge Graph Nodes: {len(graph.get("nodes", []))}
-    Knowledge Graph Edges: {len(graph.get("edges", []))}
-    
-    Task:
-    Detect contradictions.
-    Identify investigation gaps.
-    Recommend investigative actions.
-    Generate a brief reasoning summary.
-    
-    Return your response strictly as valid JSON matching the format below. Do not use markdown blocks outside the JSON.
-    
-    {{
-        "contradictions": ["Contradiction 1..."],
-        "investigation_gaps": ["Gap 1..."],
-        "recommended_actions": ["Action 1..."],
-        "reasoning": "Summary of your reasoning..."
-    }}
-    """
-    
+You are a Principal Investigation Analyst working on a digital forensics case.
+Analyze the following structured evidence and produce actionable intelligence.
+
+Case Context: {json.dumps(case_context, default=str)[:1000]}
+Timeline Events: {json.dumps(timeline, default=str)[:3000]}
+Knowledge Graph Nodes: {len(graph.get("nodes", []))}
+Knowledge Graph Edges: {len(graph.get("edges", []))}
+
+Tasks:
+1. Detect contradictions between evidence items.
+2. Identify gaps in the investigation.
+3. Recommend concrete investigative actions.
+4. Write a brief reasoning summary.
+
+Return ONLY valid raw JSON in this exact format:
+{{
+    "contradictions": ["Contradiction 1...", "Contradiction 2..."],
+    "investigation_gaps": ["Gap 1...", "Gap 2..."],
+    "recommended_actions": ["Action 1...", "Action 2..."],
+    "reasoning": "Summary of your reasoning..."
+}}
+"""
+
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        if text.startswith("```json"):
-            text = text[7:-3]
-        return json.loads(text.strip())
+        response_text = generate_content(prompt, json_mode=True)
+        return parse_json_response(response_text, INTELLIGENCE_FALLBACK.copy())
     except Exception as e:
-        print(f"Intelligence Generation failed: {e}")
-        return {
-            "contradictions": [],
-            "investigation_gaps": ["Intelligence generation failed."],
-            "recommended_actions": [],
-            "reasoning": f"Error: {str(e)}"
-        }
+        print(f"[intelligence_engine] Failed: {e}")
+        fallback = INTELLIGENCE_FALLBACK.copy()
+        fallback["reasoning"] = f"Error: {str(e)}"
+        return fallback

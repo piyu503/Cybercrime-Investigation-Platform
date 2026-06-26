@@ -1,44 +1,25 @@
-import os
 import json
-import google.generativeai as genai
+from services.llm.ollama_client import generate_content, parse_json_response
 from prompts.entity_prompt import ENTITY_EXTRACTION_PROMPT
 
-def extract_entities(text: str) -> dict:
-    """
-    Extracts structured entities from the text using Gemini 2.5 Flash.
-    """
-    empty_entities = {
-        "persons": [], "phones": [], "vehicles": [], 
-        "addresses": [], "dates": [], "times": [], 
-        "organizations": [], "emails": []
-    }
-    
-    if not text or not text.strip():
-        return empty_entities
-        
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("Warning: GEMINI_API_KEY not set. Returning empty entities.")
-        return empty_entities
 
-    genai.configure(api_key=api_key)
-    
-    # We use Flash for speed
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
-    prompt = ENTITY_EXTRACTION_PROMPT.format(text=text[:15000]) # limit to 15k chars
-    
+EMPTY_ENTITIES = {
+    "persons": [], "phones": [], "vehicles": [],
+    "addresses": [], "dates": [], "times": [],
+    "organizations": [], "emails": [], "money": [],
+    "locations": [], "evidence_ids": [], "confidence": 0.0
+}
+
+
+def extract_entities(text: str) -> dict:
+    """Extract structured forensic entities from text using a local LLM via Ollama."""
+    if not text or not text.strip():
+        return EMPTY_ENTITIES.copy()
+
+    prompt = ENTITY_EXTRACTION_PROMPT.format(text=text[:15000])
     try:
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
-                response_mime_type="application/json",
-                temperature=0.1
-            )
-        )
-        
-        result_json = response.text
-        return json.loads(result_json)
+        response_text = generate_content(prompt, json_mode=True)
+        return parse_json_response(response_text, EMPTY_ENTITIES.copy())
     except Exception as e:
-        print(f"Failed to extract entities with Gemini: {e}")
-        return empty_entities
+        print(f"[entity_service] Failed: {e}")
+        return EMPTY_ENTITIES.copy()

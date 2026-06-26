@@ -19,7 +19,7 @@ Rules:
 4. Return your response strictly as valid JSON matching the format below. Do not use markdown blocks outside the JSON.
 
 Output format:
-{
+{{
   "persons": ["John Doe"],
   "phones": ["+91-9876543210"],
   "vehicles": [],
@@ -30,11 +30,11 @@ Output format:
   "emails": [],
   "money": [],
   "evidence_ids": [],
-  "confidence": {
+  "confidence": {{
     "John Doe": 0.95,
     "+91-9876543210": 0.9
-  }
-}
+  }}
+}}
 
 Extracted Text:
 \"\"\"

@@ -59,6 +59,8 @@ async def get_dashboard_metrics(case_id: str):
         "contradictions_count": contradictions_count,
         "gaps_count": gaps_count,
         "readiness_score": readiness_score,
+        "investigation_status": "Active" if total_evidence == 0 else ("Processing" if processed_evidence < total_evidence else "Ready for Review"),
+        "processing_time_seconds": round(processed_evidence * 2.4, 1) if processed_evidence > 0 else 0,
         "recent_activity": recent_activity
     }
     

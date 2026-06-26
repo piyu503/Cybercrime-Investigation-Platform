@@ -7,11 +7,13 @@ from datetime import datetime
 
 class FileMetadata(BaseModel):
     filename: str
-    filepath: str
-    filetype: str
+    filepath: str = ""
+    filetype: str = ""
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
     is_processed: bool = False
     processed_data: Optional[dict] = None
+
+    model_config = {"extra": "allow"}
 
 
 # ─── Case Request / Response Models ───────────────────────────────────────────
