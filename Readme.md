@@ -1,65 +1,101 @@
-# 🛡️ Investigation Forensix
+# 🛡️ Forensix: AI-Powered Cybercrime Investigation Platform
 
-> **AI-Powered Digital Evidence & Investigation Automation Platform**
->
-> Built for **Police Hackathon 2026** | Challenge 11 – Digital Evidence & Investigation Automation
+> **Police Hackathon 2026**
+> **Challenge 11 – Digital Evidence & Investigation Automation**
 
----
-
-## 📌 Overview
-
-Investigation Forensix is an AI-assisted investigation platform that helps law enforcement agencies process digital evidence faster, identify critical intelligence, and generate court-ready investigation reports.
-
-Instead of manually reviewing FIRs, witness statements, WhatsApp chats, images, and other digital evidence, the system automatically:
-
-- 📄 Extracts text from uploaded evidence
-- 🏷️ Classifies evidence
-- 👥 Identifies entities (people, phones, locations, vehicles, etc.)
-- 📅 Generates a chronological investigation timeline
-- ⚠️ Detects contradictions and investigation gaps
-- 📊 Calculates investigation readiness
-- 📑 Produces a court-ready investigation report
+Forensix is an AI-assisted digital investigation platform that transforms raw evidence into structured intelligence. Instead of manually reviewing hundreds of documents, investigators can upload digital evidence and receive automatically generated timelines, entity relationships, knowledge graphs, contradictions, investigation gaps, readiness scores, and court-ready investigation reports.
 
 ---
 
-# 🚨 Problem Statement
+# Why Forensix?
 
-Modern investigations involve enormous volumes of digital evidence.
+Modern cybercrime investigations often involve:
 
-Investigators often spend significant time:
+* WhatsApp chat exports
+* Bank statements
+* FIRs
+* Witness statements
+* Emails
+* Images
+* Device metadata
+* Call logs
 
-- Reading FIRs
-- Reviewing witness statements
-- Analyzing chat exports
-- Organizing evidence manually
-- Creating investigation summaries
+Investigators typically spend days connecting these pieces manually.
 
-This process is time-consuming, error-prone, and difficult to scale.
-
----
-
-# 💡 Our Solution
-
-Investigation Forensix acts as an AI Investigation Copilot.
-
-It automatically processes uploaded evidence and converts unstructured information into actionable intelligence.
+Forensix automates this process using a deterministic multi-agent pipeline backed by AI-assisted reasoning.
 
 ---
 
-# 🔄 End-to-End Workflow
+# Features
+
+## Evidence Processing
+
+* PDF parsing
+* OCR for scanned documents
+* TXT / CSV ingestion
+* Image text extraction
+* Metadata extraction
+* Automatic evidence categorization
+
+---
+
+## AI Investigation Pipeline
+
+* Evidence Classification
+* Entity Extraction
+* Timeline Generation
+* Knowledge Graph Construction
+* Correlation Engine
+* Contradiction Detection
+* Missing Evidence Detection
+* Readiness Scoring
+* AI Investigation Copilot
+* Court-Ready Report Generation
+
+---
+
+## Investigation Dashboard
+
+* Case Management
+* Evidence Locker
+* Interactive Timeline
+* Knowledge Graph
+* AI Copilot
+* Investigation Reports
+* Activity Stream
+* Audit Logs
+
+---
+
+# Supported Evidence Types
+
+* PDF
+* TXT
+* CSV
+* PNG
+* JPG
+* JPEG
+
+Typical investigation files include:
+
+* FIR Reports
+* Bank Statements
+* WhatsApp Exports
+* Email Dumps
+* Witness Statements
+* Device Metadata
+* Call Logs
+* Financial Records
+
+---
+
+# Investigation Pipeline
 
 ```text
-Create Investigation
+Evidence Upload
         │
         ▼
-Upload Evidence
-(FIR, Chat, Images, Documents)
-        │
-        ▼
-Evidence Processing
-        │
-        ▼
-OCR & Text Extraction
+OCR / Text Extraction
         │
         ▼
 Evidence Classification
@@ -71,239 +107,139 @@ Entity Extraction
 Timeline Generation
         │
         ▼
-Intelligence Analysis
+Knowledge Graph
+        │
+        ▼
+Correlation Engine
+        │
+        ▼
+Contradiction Detection
+        │
+        ▼
+Gap Analysis
         │
         ▼
 Readiness Score
         │
         ▼
-Court Ready Report
+AI Investigation Report
 ```
 
----
-
-# ✨ Features
-
-## ✅ Investigation Case Management
-
-- Create Investigation Cases
-- Case Dashboard
-- Evidence Inventory
-- Investigation Tracking
+Unlike a simple LLM chatbot, Forensix combines deterministic engines with AI reasoning to keep findings grounded in uploaded evidence.
 
 ---
 
-## 📂 Digital Evidence Upload
-
-Supports:
-
-- PDF
-- PNG
-- JPG
-- JPEG
-- TXT
-
-Drag & Drop Upload
-
-Upload Progress
-
-File Validation
-
----
-
-## 🤖 AI Evidence Processing 
-- PDF Parsing
-- OCR
-- Metadata Extraction
-- Automatic Evidence Classification
-
----
-
-## 🧠 Entity Extraction 
-
-Extracts:
-
-- Persons
-- Phone Numbers
-- Vehicle Numbers
-- Addresses
-- Organizations
-- Dates
-- Times
-- Emails
-
----
-
-## 🕒 Timeline Generation 
-
-Automatically creates chronological timelines from all evidence.
-
-Example:
-
-```text
-7:15 PM
-Rahul called Aman
-
-↓
-
-7:42 PM
-Vehicle UP65AB1234 entered location
-
-↓
-
-8:03 PM
-Witness reached crime scene
-```
-
----
-
-## 🔍 Investigation Intelligence
-
-Automatically identifies:
-
-- Contradictions
-- Missing Evidence
-- Investigation Gaps
-- Recommended Actions
-- Readiness Score
-
----
-
-## 📄 AI Report Generation 
-
-Generates:
-
-- Investigation Summary
-- Timeline
-- Evidence Inventory
-- Key Findings
-- Investigation Gaps
-- Recommendations
-- Court-ready PDF Report
-
----
-
-# 🏗️ System Architecture
-
-```text
-                React + Vite Frontend
-                        │
-                        ▼
-                FastAPI Backend
-                        │
-                        ▼
-                 AI Orchestrator
-                        │
- ┌─────────────────────────────────────────┐
- │                                         │
- │   Evidence Agent                        │
- │   Entity Agent                          │
- │   Timeline Agent                        │
- │   Intelligence Agent                    │
- │   Report Agent                          │
- │                                         │
- └─────────────────────────────────────────┘
-                        │
-                        ▼
-                  MongoDB Atlas
-```
-
----
-
-# 🛠️ Tech Stack
+# Tech Stack
 
 ## Frontend
 
-- React 18
-- Vite
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- React Router
-- TanStack Query
-- Axios
-- Lucide Icons
+* React 18
+* TypeScript
+* Vite
+* Tailwind CSS
+* shadcn/ui
+* Framer Motion
 
 ---
 
 ## Backend
 
-- FastAPI
-- Uvicorn
-- MongoDB Atlas
-- Motor
-- Pydantic
+* FastAPI
+* Python
+* MongoDB
+* ReportLab
 
 ---
 
 ## AI
 
-- Gemini 2.5 Flash
-- Gemini 2.5 Pro
+* Google Gemini (Flash / Pro)
+* EasyOCR
+* PyMuPDF
+* Pillow
 
 ---
 
-## OCR
-
-- EasyOCR
-- PyMuPDF
-- Pillow
-
----
-
-## Report Generation
-
-- ReportLab
-
----
-
-# 📁 Project Structure
+# Project Structure
 
 ```text
 Forensix/
 
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   └── package.json
-│
-├── backend/
-│   ├── routes/
-│   ├── services/
-│   ├── models/
-│   ├── database/
-│   └── app.py
-│
-├── ARCHITECTURE.md
-├── ROADMAP.md
-├── API_CONTRACT.md
-├── AI_CONTEXT.md
-└── README.md
+backend/
+    agents/
+    engines/
+    routes/
+    services/
+    models/
+    prompts/
+    database/
+
+frontend/
+    components/
+    pages/
+    hooks/
+    services/
+    lib/
+
+uploads/
 ```
 
 ---
 
-# 🚀 Installation
+# Getting Started
 
-## Backend
+## Prerequisites
+
+* Python 3.11+
+* Node.js 20+
+* MongoDB Community Server
+* npm
+
+---
+
+## Clone Repository
+
+```bash
+git clone <repository-url>
+cd Forensix
+```
+
+---
+
+## Backend Setup
 
 ```bash
 cd backend
 
 python -m venv venv
 
-source venv/bin/activate
 # Windows
 venv\Scripts\activate
 
-pip install -r requirements.txt
+# Linux / macOS
+source venv/bin/activate
 
+pip install -r requirements.txt
+```
+
+Create a `.env` file:
+
+```env
+MONGO_URI=mongodb://localhost:27017
+DATABASE_NAME=forensix_db
+
+GEMINI_API_KEY=YOUR_API_KEY
+```
+
+Start backend
+
+```bash
 uvicorn app:app --reload
 ```
 
 ---
 
-## Frontend
+## Frontend Setup
 
 ```bash
 cd frontend
@@ -313,59 +249,117 @@ npm install
 npm run dev
 ```
 
----
+Open
 
-# 📌 Development Status
-
-| Module | Status |
-|---------|--------|
-| Backend Foundation | ✅ |
-| Frontend Foundation | ✅ |
-| Dashboard | ✅ |
-| Case Management | ✅ |
-| Evidence Upload | ✅ |
-| Evidence Processing | 🚧 |
-| Entity Extraction | 🚧 |
-| Timeline Generation | 🚧 |
-| Intelligence Engine | 🚧 |
-| Report Generator | 🚧 |
+```
+http://localhost:5173
+```
 
 ---
 
-# 🎯 Hackathon Deliverables
+# Running an Investigation
 
-By demo day the platform will demonstrate:
+1. Create a Case
+2. Upload evidence
+3. Click **Run AI Engine**
+4. Wait for processing
+5. Explore:
 
-- ✅ Create Investigation Case
-- ✅ Upload Evidence
-- ✅ Automatic OCR
-- ✅ Evidence Classification
-- ✅ Entity Extraction
-- ✅ Timeline Generation
-- ✅ Investigation Gap Detection
-- ✅ Readiness Score
-- ✅ Court-ready Investigation Report
-
----
-
-# 👥 Team
-
-> Add your team members here.
-
-Example:
-
-- Piyush Jaiswal
-- Member 2
-- Member 3
+* Overview
+* Evidence
+* Timeline
+* Knowledge Graph
+* Copilot
+* Reports
 
 ---
 
-# 📜 License
+# Sample Test Cases
 
-This project was developed for **Police Hackathon 2026**.
+The repository includes sample investigation datasets.
+
+Examples include:
+
+* Financial Fraud
+* Phishing
+* Bank Transfer Fraud
+
+Upload every file from a dataset into a single case and run the AI Engine.
 
 ---
 
-# 🌟 Vision
+# Screenshots
 
-Investigation Forensix aims to become an AI-powered investigation assistant that enables law enforcement agencies to process digital evidence faster, reduce manual effort, and improve investigation quality through intelligent automation.   
+Add screenshots or GIFs here:
+
+* Dashboard
+* Knowledge Graph
+* Timeline
+* Copilot
+* Investigation Report
+
+---
+
+# Troubleshooting
+
+## MongoDB Connection Error
+
+Verify MongoDB is running:
+
+```bash
+mongod
+```
+
+or connect using
+
+```
+mongodb://localhost:27017
+```
+
+---
+
+## Backend Not Starting
+
+Ensure:
+
+* Python virtual environment is activated
+* Dependencies installed
+* `.env` configured
+
+---
+
+## AI Not Responding
+
+Verify:
+
+* Gemini API Key or LLM Local Model key
+* Internet connectivity
+* Backend logs
+
+---
+
+# Future Improvements
+
+* Video Evidence Analysis
+* Audio Transcription
+* Face Recognition
+* Device Forensics
+* Cellebrite / UFDR Import
+* Multi-user Collaboration
+* Role-Based Access Control
+* Chain of Custody Tracking
+
+---
+
+# Team
+
+* Piyush Jaiswal
+* Add remaining team members
+
+---
+
+# License
+
+Developed for **Police Hackathon 2026**.
+
+This project demonstrates how AI-assisted investigation can help law enforcement process digital evidence faster while keeping every finding grounded in uploaded evidence.
