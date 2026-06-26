@@ -29,7 +29,7 @@ export function ReadinessGauge({ readiness }: { readiness: ReadinessScore }) {
       
       <p className="text-[10px] text-white/50 font-bold tracking-widest uppercase text-right">STATUS: {status}</p>
 
-      <div className="grid grid-cols-2 gap-4 mt-2">
+      <div className="flex flex-col gap-4 mt-4">
         <div className="space-y-2">
           <h4 className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest bg-emerald-500/10 px-2 py-1 rounded-md w-max border border-emerald-500/20">Positive Factors</h4>
           {positive_factors?.map((f, i) => (

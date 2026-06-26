@@ -5,10 +5,6 @@ import Cases from "@/pages/Cases";
 import CreateCase from "@/pages/CreateCase";
 import CaseDetail from "@/pages/CaseDetail";
 import EvidenceUpload from "@/pages/EvidenceUpload";
-import Evidence from "@/pages/Evidence";
-import Timeline from "@/pages/Timeline";
-import Reports from "@/pages/Reports";
-import Search from "@/pages/Search";
 
 export const router = createBrowserRouter([
   {
@@ -20,10 +16,7 @@ export const router = createBrowserRouter([
       { path: "cases/new", element: <CreateCase /> },
       { path: "cases/:case_id", element: <CaseDetail /> },
       { path: "cases/:case_id/upload", element: <EvidenceUpload /> },
-      { path: "evidence", element: <Evidence /> },
-      { path: "timeline", element: <Timeline /> },
-      { path: "reports", element: <Reports /> },
-      { path: "search", element: <Search /> },
+      { path: "settings", element: <div className="p-8 text-white/50 text-center">Settings coming soon</div> },
     ],
   },
 ]);

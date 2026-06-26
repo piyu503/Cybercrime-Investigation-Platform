@@ -21,7 +21,7 @@ async def get_dashboard_metrics(case_id: str):
     # Total Evidence
     files = case.get("files", [])
     total_evidence = len(files)
-    processed_evidence = sum(1 for f in files if "metadata" in f)
+    processed_evidence = sum(1 for f in files if f.get("is_processed") or "processed_data" in f)
     
     # Timeline Events
     timeline = case.get("timeline", [])

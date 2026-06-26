@@ -1,8 +1,9 @@
-import { Fragment } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ChevronRight, Menu, Search } from "lucide-react";
+import { Fragment, useState, useMemo, useRef, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ChevronRight, Menu, Search, Briefcase } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useCases } from "@/hooks/useCases";
 import {
   Avatar,
   AvatarFallback,
@@ -15,6 +16,7 @@ const ROUTE_LABELS: Record<string, string> = {
   evidence: "Evidence",
   timeline: "Timeline",
   reports: "Reports",
+  settings: "Settings",
 };
 
 function useBreadcrumbs() {
@@ -40,6 +42,30 @@ interface TopbarProps {
 
 export function Topbar({ onOpenMobileNav }: TopbarProps) {
   const breadcrumbs = useBreadcrumbs();
+  const navigate = useNavigate();
+  const { data: cases } = useCases();
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim() || !cases) return [];
+    const query = searchQuery.toLowerCase();
+    return cases.filter(
+      (c) => c.case_name.toLowerCase().includes(query) || (c._id && c._id.toLowerCase().includes(query))
+    ).slice(0, 5);
+  }, [searchQuery, cases]);
 
   return (
     <header className="sticky top-0 z-30 flex h-[var(--topbar-height)] w-full shrink-0 items-center justify-between border-b border-white/5 bg-black/40 backdrop-blur-xl px-6">
@@ -92,16 +118,64 @@ export function Topbar({ onOpenMobileNav }: TopbarProps) {
 
       <div className="flex items-center gap-4">
         {/* Global search */}
-        <div className="relative flex-1 sm:w-64 md:w-80 lg:w-96 hidden sm:block group">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30 group-focus-within:text-blue-400 transition-colors" />
+        <div ref={searchRef} className="relative flex-1 sm:w-64 md:w-80 lg:w-96 hidden sm:block group">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30 group-focus-within:text-blue-400 transition-colors z-10" />
           <Input
             type="search"
             placeholder="Search workspace..."
-            className="h-9 w-full bg-white/5 border-white/10 pl-9 pr-12 text-sm text-white placeholder:text-white/30 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 rounded-full transition-all shadow-inner"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            className="h-9 w-full bg-white/5 border-white/10 pl-9 pr-12 text-sm text-white placeholder:text-white/30 focus-visible:ring-blue-500/50 focus-visible:border-blue-500/50 rounded-full transition-all shadow-inner relative z-0"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-             <kbd className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-mono text-white/40">⌘K</kbd>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+            <kbd className="hidden rounded bg-black/40 px-1.5 py-0.5 text-[10px] font-medium text-white/40 lg:block border border-white/10 shadow-sm">
+              ⌘K
+            </kbd>
           </div>
+
+          {/* Search Dropdown */}
+          <AnimatePresence>
+            {isSearchFocused && searchQuery.trim() !== "" && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="absolute top-11 left-0 w-full bg-[#0f172a] border border-white/10 shadow-2xl rounded-xl overflow-hidden flex flex-col z-50"
+              >
+                {searchResults.length > 0 ? (
+                  <div className="flex flex-col">
+                    <div className="px-4 py-2 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5 bg-white/[0.02]">
+                      Projects
+                    </div>
+                    {searchResults.map((project) => (
+                      <button
+                        key={project._id}
+                        onClick={() => {
+                          setSearchQuery("");
+                          setIsSearchFocused(false);
+                          navigate(`/cases/${project._id}`);
+                        }}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                           <Briefcase className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="text-sm font-semibold text-white truncate">{project.case_name}</span>
+                          <span className="text-[10px] text-white/40 font-mono truncate">{project._id}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-sm text-white/40">
+                    No results found for "{searchQuery}"
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* User profile */}

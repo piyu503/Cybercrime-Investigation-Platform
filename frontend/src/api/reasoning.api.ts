@@ -74,13 +74,40 @@ export interface IntelligenceRecommendation {
 }
 
 export interface IntelligenceSummary {
-  case_overview: string;
+  project_overview: string;
   investigation_status: string;
-  critical_findings: string[];
-  major_events: string[];
-  major_contradictions: string[];
-  investigation_gaps: string[];
-  overall_assessment: string;
+  critical_findings: {
+    finding: string;
+    source_file: string;
+    evidence_snippet: string;
+    confidence: string;
+    agent: string;
+  }[];
+  major_events: {
+    time: string;
+    event: string;
+    source_file: string;
+  }[];
+  strategic_assessment: {
+    recommendation: string;
+    reason: string;
+  }[];
+  major_contradictions: {
+    conflict: string;
+    reason: string;
+    source_files: string[];
+  }[];
+  investigation_gaps: {
+    missing_item: string;
+    impact: string;
+  }[];
+  readiness: {
+    score: string;
+    strengths: string;
+    weaknesses: string;
+    risk: string;
+    next_action: string;
+  };
 }
 
 export interface ReadinessScore {

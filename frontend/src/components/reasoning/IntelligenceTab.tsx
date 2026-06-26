@@ -88,11 +88,11 @@ export function IntelligenceTab({ caseId }: { caseId: string }) {
     <div className="h-full flex flex-col animate-fade-in overflow-y-auto scrollbar-thin">
       
       {/* Top Row: Gauge & Exec Summary */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
-        <div className="xl:col-span-1">
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="w-full">
           <ReadinessGauge readiness={intelligence.readiness} />
         </div>
-        <div className="xl:col-span-2 flex flex-col justify-center">
+        <div className="w-full flex flex-col justify-center">
            {intelligence.summary ? (
              <InvestigationSummary summary={intelligence.summary} />
            ) : (
@@ -104,7 +104,7 @@ export function IntelligenceTab({ caseId }: { caseId: string }) {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
+      <div className="flex flex-col gap-6 pb-6">
         
         {/* Left Column: Contradictions & Gaps */}
         <div className="space-y-6">

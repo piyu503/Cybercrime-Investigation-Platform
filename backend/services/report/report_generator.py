@@ -55,9 +55,32 @@ def generate_court_report_pdf(case: Dict[str, Any]) -> io.BytesIO:
 
     # 3. Investigation Findings (Summary)
     intel = case.get("intelligence", {})
-    if intel.get("summary"):
+    summary_data = intel.get("summary", {})
+    
+    if summary_data:
         Story.append(Paragraph("<b>EXECUTIVE SUMMARY</b>", heading1_style))
-        Story.append(Paragraph(str(intel.get("summary")), normal_style))
+        if isinstance(summary_data, dict):
+            # Format dict nicely
+            for key, val in summary_data.items():
+                if isinstance(val, list):
+                    Story.append(Paragraph(f"<b>{key.replace('_', ' ').title()}:</b>", heading2_style))
+                    for item in val:
+                        if isinstance(item, dict):
+                            # Convert complex object to readable string for PDF
+                            item_str = " | ".join([f"{k}: {v}" for k, v in item.items() if v and not isinstance(v, list)])
+                            if "source_files" in item and isinstance(item["source_files"], list):
+                                item_str += f" | sources: {', '.join(item['source_files'])}"
+                            Story.append(Paragraph(f"• {item_str}", normal_style))
+                        else:
+                            Story.append(Paragraph(f"• {str(item)}", normal_style))
+                elif isinstance(val, dict):
+                    Story.append(Paragraph(f"<b>{key.replace('_', ' ').title()}:</b>", heading2_style))
+                    for k, v in val.items():
+                        Story.append(Paragraph(f"• <b>{k.replace('_', ' ').title()}:</b> {v}", normal_style))
+                else:
+                    Story.append(Paragraph(f"<b>{key.replace('_', ' ').title()}:</b> {str(val)}", normal_style))
+        else:
+            Story.append(Paragraph(str(summary_data), normal_style))
         Story.append(Spacer(1, 0.2 * inch))
         
     readiness = intel.get("readiness", {})
@@ -71,7 +94,7 @@ def generate_court_report_pdf(case: Dict[str, Any]) -> io.BytesIO:
     if files:
         evidence_data = [["Filename", "Type"]]
         for f in files:
-            evidence_data.append([f.get("filename", "N/A"), f.get("file_type", "N/A")])
+            evidence_data.append([f.get("filename", "N/A"), f.get("filetype", "N/A")])
         t2 = Table(evidence_data, colWidths=[4 * inch, 2 * inch])
         t2.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),

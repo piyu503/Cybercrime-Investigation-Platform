@@ -53,25 +53,39 @@ async def start_pipeline(case_id: str) -> dict:
             # Merge general metadata with type-specific metadata
             combined_metadata = {**file_meta, **extracted_data.get("metadata", {})}
             
-            # 3. AI Agents
-            import asyncio
-            classification_task = asyncio.to_thread(classify_evidence, raw_text)
-            entities_task = asyncio.to_thread(extract_entities, raw_text)
-            from services.llm.embedding_service import generate_embedding
-            embedding_task = asyncio.to_thread(generate_embedding, raw_text)
-            
-            classification_result, entities_result, text_embedding = await asyncio.gather(
-                classification_task, entities_task, embedding_task
-            )
+            # If text extraction resulted in empty text, skip AI agents and log exactly why.
+            if not raw_text.strip():
+                error_reason = "Text extraction yielded no content. The file might be an image-only PDF lacking OCR layer, corrupted, or unsupported."
+                print(f"[pipeline] Empty text for {filepath}: {error_reason}")
+                processed_data = {
+                    "extracted_text": "",
+                    "metadata": combined_metadata,
+                    "classification": "Unclassified (Empty Text)",
+                    "entities": [],
+                    "embedding": [],
+                    "extraction_error": error_reason
+                }
+                classification_result = {"classification": "Unclassified (Empty Text)"}
+            else:
+                # 3. AI Agents
+                import asyncio
+                classification_task = asyncio.to_thread(classify_evidence, raw_text)
+                entities_task = asyncio.to_thread(extract_entities, raw_text)
+                from services.llm.embedding_service import generate_embedding
+                embedding_task = asyncio.to_thread(generate_embedding, raw_text)
                 
-            # 4. Save to MongoDB
-            processed_data = {
-                "extracted_text": raw_text,
-                "metadata": combined_metadata,
-                "classification": classification_result.get("classification", "Unknown"),
-                "entities": entities_result,
-                "embedding": text_embedding
-            }
+                classification_result, entities_result, text_embedding = await asyncio.gather(
+                    classification_task, entities_task, embedding_task
+                )
+                    
+                # 4. Save to MongoDB
+                processed_data = {
+                    "extracted_text": raw_text,
+                    "metadata": combined_metadata,
+                    "classification": classification_result.get("classification", "Unknown"),
+                    "entities": entities_result,
+                    "embedding": text_embedding
+                }
             
             await db["cases"].update_one(
                 {"_id": ObjectId(case_id)},

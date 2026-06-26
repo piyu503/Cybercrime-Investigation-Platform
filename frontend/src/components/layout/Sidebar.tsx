@@ -2,9 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Briefcase,
-  Fingerprint,
-  History,
-  FileText,
+  Settings,
   ChevronsLeft,
   ChevronsRight,
   ScanSearch,
@@ -26,9 +24,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Overview", to: "/", icon: LayoutDashboard },
   { label: "Projects", to: "/cases", icon: Briefcase },
-  { label: "Evidence", to: "/evidence", icon: Fingerprint },
-  { label: "Timeline", to: "/timeline", icon: History },
-  { label: "Reports", to: "/reports", icon: FileText },
+  { label: "Settings", to: "/settings", icon: Settings },
 ];
 
 interface SidebarProps {

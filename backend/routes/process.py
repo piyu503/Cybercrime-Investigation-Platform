@@ -59,6 +59,17 @@ async def _run_full_pipeline(case_id: str):
         key_entities = calculate_degree_centrality(graph)
         intelligence["key_entities"] = key_entities
         
+        # Inject full context for the LLM to ground its summary in reality
+        intelligence["timeline"] = timeline
+        
+        excerpts = []
+        for f in files:
+            p_data = f.get("processed_data", {})
+            text = p_data.get("extracted_text", "")
+            if text:
+                excerpts.append({"filename": f.get("filename", "Unknown"), "excerpt": text[:1500]})
+        intelligence["evidence_excerpts"] = excerpts
+        
         print(f"[pipeline] Intelligence keys: {list(intelligence.keys())}")
 
         # Generate LLM summary
@@ -74,13 +85,20 @@ async def _run_full_pipeline(case_id: str):
             contradictions = intelligence.get("contradictions", [])
             gaps = intelligence.get("gaps", [])
             intelligence["summary"] = {
-                "case_overview": f"Investigation with {len(files)} evidence files processed.",
+                "project_overview": f"Investigation processed {len(files)} evidence files and generated {len(timeline)} events.",
                 "investigation_status": intelligence.get("readiness", {}).get("status", "Under Review"),
-                "critical_findings": [str(c.get("reason", c))[:120] for c in contradictions[:3]],
-                "major_events": [str(e.get("description", e))[:120] for e in timeline[:3]],
-                "major_contradictions": [str(c.get("reason", c))[:120] for c in contradictions[:3]],
-                "investigation_gaps": [str(g.get("reason", g))[:120] for g in gaps[:3]],
-                "overall_assessment": f"Case has {len(files)} files, {len(timeline)} timeline events, and {len(contradictions)} detected contradictions."
+                "critical_findings": [{"finding": "System generated fallback due to LLM failure", "source_file": "System", "evidence_snippet": "N/A", "confidence": "0%", "agent": "System"}],
+                "major_events": [{"time": "N/A", "event": "Pipeline processed files", "source_file": "System"}],
+                "strategic_assessment": [{"recommendation": "Review logs", "reason": "LLM failed"}],
+                "major_contradictions": [{"conflict": "Fallback mode active", "reason": "N/A", "source_files": []}],
+                "investigation_gaps": [{"missing_item": "Detailed Intelligence", "impact": "LLM Failure"}],
+                "readiness": {
+                    "score": str(intelligence.get("readiness", {}).get("overall_score", 0)),
+                    "strengths": "N/A",
+                    "weaknesses": "LLM Offline",
+                    "risk": "High",
+                    "next_action": "Retry processing"
+                }
             }
 
         # Persist all generated data

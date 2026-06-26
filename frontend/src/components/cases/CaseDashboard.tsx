@@ -1,38 +1,31 @@
-import { useEffect, useState } from "react";
 import { Share2, Activity, Server, Clock, Database, BrainCircuit, ActivitySquare } from "lucide-react";
-import { DashboardMetrics, getDashboardMetrics } from "@/api/dashboard.api";
+import { getDashboardMetrics } from "@/api/dashboard.api";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 
 export default function CaseDashboard({ caseId }: { caseId: string }) {
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchMetrics() {
-      try {
-        const data = await getDashboardMetrics(caseId);
-        setMetrics(data);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchMetrics();
-  }, [caseId]);
+  const { data: metrics, isLoading: loading } = useQuery({
+    queryKey: ['dashboard', caseId],
+    queryFn: () => getDashboardMetrics(caseId),
+    refetchInterval: 3000,
+  });
 
   if (loading || !metrics) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-4 p-8 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl shadow-glass">
-           <Activity className="h-8 w-8 animate-pulse text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-           <p className="text-sm text-white/50 tracking-widest uppercase">Initializing Uplink...</p>
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="flex flex-col items-center justify-center gap-6 p-12 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl shadow-glass w-full max-w-md">
+           <div className="relative flex items-center justify-center">
+             <div className="absolute w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+             <Activity className="h-6 w-6 text-blue-500 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] animate-pulse" />
+           </div>
+           <div className="text-center space-y-2">
+             <p className="text-sm font-bold text-white tracking-widest uppercase">Connecting to Copilot</p>
+             <p className="text-[10px] text-white/40 tracking-wider font-mono">Synchronizing workspace data...</p>
+           </div>
         </div>
       </div>
     );
   }
-
-  const processingProgress = metrics.total_evidence > 0 ? Math.round((metrics.processed_evidence / metrics.total_evidence) * 100) : 0;
 
   return (
     <div className="flex flex-col gap-6 h-full pb-4">
@@ -73,15 +66,39 @@ export default function CaseDashboard({ caseId }: { caseId: string }) {
            </div>
 
            <div className="mt-4 pt-4 border-t border-white/5 relative z-10">
-              <h4 className="text-[10px] uppercase tracking-widest text-white/50 mb-2 font-bold">Processing Queue</h4>
-              <div className="space-y-1">
-                 <div className="flex justify-between text-[10px] font-medium">
-                    <span className="text-white/70">Evidence Processed</span>
-                    <span className="text-white">{metrics.processed_evidence} / {metrics.total_evidence}</span>
-                 </div>
-                 <div className="w-full bg-black/40 rounded-full h-1.5 shadow-inner">
-                    <div className="bg-blue-500 h-1.5 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000" style={{ width: `${processingProgress}%` }}></div>
-                 </div>
+              <h4 className="text-[10px] uppercase tracking-widest text-white/50 mb-3 font-bold">Investigation Pipeline</h4>
+              
+              <div className="space-y-2">
+                 <PipelineStep 
+                    label="Evidence Processing" 
+                    isDone={metrics.total_evidence > 0 && metrics.processed_evidence === metrics.total_evidence} 
+                    isPending={metrics.total_evidence === 0} 
+                    isActive={metrics.total_evidence > 0 && metrics.processed_evidence < metrics.total_evidence} 
+                 />
+                 <PipelineStep 
+                    label="Entity Extraction" 
+                    isDone={metrics.entities_count > 0} 
+                    isPending={metrics.entities_count === 0 && metrics.processed_evidence < metrics.total_evidence}
+                    isActive={metrics.total_evidence > 0 && metrics.processed_evidence === metrics.total_evidence && metrics.entities_count === 0}
+                 />
+                 <PipelineStep 
+                    label="Timeline Generation" 
+                    isDone={metrics.total_events > 0} 
+                    isPending={metrics.total_events === 0 && metrics.entities_count === 0}
+                    isActive={metrics.entities_count > 0 && metrics.total_events === 0}
+                 />
+                 <PipelineStep 
+                    label="Knowledge Graph" 
+                    isDone={metrics.total_nodes > 0} 
+                    isPending={metrics.total_nodes === 0 && metrics.total_events === 0}
+                    isActive={metrics.total_events > 0 && metrics.total_nodes === 0}
+                 />
+                 <PipelineStep 
+                    label="Gap Analysis" 
+                    isDone={metrics.readiness_score > 0 || metrics.gaps_count > 0} 
+                    isPending={metrics.readiness_score === 0}
+                    isActive={metrics.total_nodes > 0 && metrics.readiness_score === 0}
+                 />
               </div>
            </div>
         </motion.div>
@@ -156,11 +173,28 @@ function MetricBox({ title, value, icon, delay }: { title: string, value: string
   );
 }
 
-function IntelligenceRow({ label, count, color, bg, border }: { label: string, count: number, color: string, bg: string, border: string }) {
-   return (
-      <div className={`flex justify-between items-center px-3 py-1.5 rounded-lg border ${bg} ${border}`}>
-         <span className={`text-[10px] font-bold tracking-wider uppercase ${color}`}>{label}</span>
-         <span className={`font-mono text-xs font-bold ${color}`}>{count}</span>
+function IntelligenceRow({ label, count, color, bg, border }: any) {
+  return (
+    <div className={`flex items-center justify-between p-2 rounded-xl border ${border} ${bg}`}>
+       <span className="text-xs font-semibold text-white/70">{label}</span>
+       <span className={`text-sm font-bold ${color}`}>{count}</span>
+    </div>
+  );
+}
+
+function PipelineStep({ label, isDone, isActive, isPending }: { label: string, isDone: boolean, isActive: boolean, isPending: boolean }) {
+  return (
+    <div className="flex items-center gap-3 text-xs">
+      <div className="flex items-center justify-center w-4 h-4 shrink-0">
+        {isDone && <div className="w-4 h-4 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-emerald-400 font-bold text-[8px]">✓</div>}
+        {isActive && <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]" />}
+        {isPending && <div className="w-2 h-2 rounded-full bg-white/20" />}
       </div>
-   );
+      <span className={`font-medium ${isDone ? 'text-emerald-400/80' : isActive ? 'text-white' : 'text-white/30'}`}>
+        {label}
+      </span>
+      {isActive && <span className="ml-auto text-[10px] font-mono text-blue-400 animate-pulse">Running...</span>}
+      {isPending && <span className="ml-auto text-[10px] font-mono text-white/30">Pending</span>}
+    </div>
+  );
 }
